@@ -1,0 +1,16 @@
+type Metadata {
+    entries: [MetadataEntry!]!
+
+    get(key: String!): String
+    getMultiple(keys: [String!]!): [String!]!
+}
+
+type MetadataEntry {
+    key: String!
+    value: String
+}
+
+input MetadataEntryInput {
+    key: String!
+    value: String
+}

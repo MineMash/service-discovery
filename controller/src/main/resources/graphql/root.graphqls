@@ -1,0 +1,17 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    getService(id: ID!): Service
+    getAllServices: [Service!]!
+}
+
+type Mutation {
+    registerService(headless: HeadlessService!): Service!
+    unregisterService(id: ID!): Boolean!
+
+    updateServiceState(id: ID!, state: ServiceState): Service
+    updateServiceMetadata(id: ID!, key: String!, value: String): Service
+}

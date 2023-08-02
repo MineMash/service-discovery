@@ -1,0 +1,23 @@
+enum ServiceState {
+
+    CREATED
+    READY
+    HEALTHY
+    UNHEALTHY
+    STOPPING
+    STOPPED
+    UNKNOWN
+
+}
+
+type Network {
+    address: String!
+    runningPort: Int!
+    healthCheckPort: Int!
+}
+
+input NetworkInput {
+    address: String!
+    runningPort: Int!
+    healthCheckPort: Int!
+}

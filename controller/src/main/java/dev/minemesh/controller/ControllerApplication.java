@@ -16,10 +16,7 @@ import static dev.minemesh.controller.util.StringUtil.generateIdString;
 @SpringBootApplication
 public class ControllerApplication {
 
-	private static short counter = 0;
-
-	public static void main(String[] args) throws InterruptedException {
-		System.out.println(Integer.MAX_VALUE);
-//		SpringApplication.run(ControllerApplication.class, args);
+	public static void main(String[] args) {
+		SpringApplication.run(ControllerApplication.class, args);
 	}
 }
