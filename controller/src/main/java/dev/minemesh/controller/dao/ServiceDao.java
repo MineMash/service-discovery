@@ -1,6 +1,8 @@
 package dev.minemesh.controller.dao;
 
-import dev.minemesh.controller.model.Service;
+import dev.minemesh.controller.model.ServiceModel;
+import dev.minemesh.servicediscovery.common.RegisteredService;
+import dev.minemesh.servicediscovery.common.Service;
 import dev.minemesh.servicediscovery.common.ServiceState;
 
 import java.util.List;
@@ -9,15 +11,15 @@ import java.util.Optional;
 public interface ServiceDao {
 
 
-    Optional<Service> getService(String id);
+    Optional<RegisteredService> findById(String id);
 
-    List<Service> getAllServices();
+    List<RegisteredService> findAll();
 
-    Service registerService(Service.Headless headless);
+    ServiceModel registerService(Service service);
 
     boolean unregisterService(String id);
 
-    Optional<Service> updateServiceState(String id, ServiceState state);
+    Optional<RegisteredService> updateServiceState(String id, ServiceState state);
 
-    Optional<Service> updateServiceMetadata(String id, String key, String value);
+    Optional<RegisteredService> updateServiceMetadata(String id, String key, String value);
 }

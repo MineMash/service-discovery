@@ -1,7 +1,7 @@
 package dev.minemesh.controller.controller;
 
 import dev.minemesh.controller.dao.ServiceDao;
-import dev.minemesh.controller.model.Service;
+import dev.minemesh.servicediscovery.common.RegisteredService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
@@ -15,13 +15,13 @@ public class ServiceQueryController {
     private ServiceDao serviceDao;
 
     @QueryMapping
-    public Optional<Service> getService(@Argument String id) {
-        return this.serviceDao.getService(id);
+    public Optional<RegisteredService> getService(@Argument String id) {
+        return this.serviceDao.findById(id);
     }
 
     @QueryMapping
-    public List<Service> getAllServices() {
-        return this.serviceDao.getAllServices();
+    public List<RegisteredService> getAllServices() {
+        return this.serviceDao.findAll();
     }
 
 }

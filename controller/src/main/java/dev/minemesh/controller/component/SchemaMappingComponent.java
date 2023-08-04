@@ -1,6 +1,6 @@
 package dev.minemesh.controller.component;
 
-import dev.minemesh.controller.model.Metadata;
+import dev.minemesh.controller.model.MetadataModel;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Component;
@@ -11,17 +11,17 @@ import java.util.List;
 public class SchemaMappingComponent {
 
     @SchemaMapping
-    public String get(Metadata metadata, @Argument String key) {
+    public String get(MetadataModel metadata, @Argument String key) {
         return null;
     }
 
     @SchemaMapping
-    public List<String> getMultiple(Metadata metadata, @Argument List<String> keys) {
+    public List<String> getMultiple(MetadataModel metadata, @Argument List<String> keys) {
         return null;
     }
 
     @SchemaMapping
-    public List<Metadata> entries(Metadata metadata) {
+    public List<MetadataModel> entries(MetadataModel metadata) {
         return null;
     }
 

@@ -1,7 +1,9 @@
 package dev.minemesh.controller.controller;
 
 import dev.minemesh.controller.dao.ServiceDao;
-import dev.minemesh.controller.model.Service;
+import dev.minemesh.controller.model.ServiceModel;
+import dev.minemesh.servicediscovery.common.RegisteredService;
+import dev.minemesh.servicediscovery.common.Service;
 import dev.minemesh.servicediscovery.common.ServiceState;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -12,11 +14,15 @@ import java.util.Optional;
 @Controller
 public class ServiceMutationController {
 
-    private ServiceDao serviceDao;
+    private final ServiceDao serviceDao;
+
+    public ServiceMutationController(ServiceDao serviceDao) {
+        this.serviceDao = serviceDao;
+    }
 
     @MutationMapping
-    public Service registerService(@Argument Service.Headless headless) {
-        return this.serviceDao.registerService(headless);
+    public ServiceModel registerService(@Argument Service service) {
+        return this.serviceDao.registerService(service);
     }
 
     @MutationMapping
@@ -25,12 +31,12 @@ public class ServiceMutationController {
     }
 
     @MutationMapping
-    public Optional<Service> updateServiceState(@Argument String id, @Argument ServiceState state) {
+    public Optional<RegisteredService> updateServiceState(@Argument String id, @Argument ServiceState state) {
         return this.serviceDao.updateServiceState(id, state);
     }
 
     @MutationMapping
-    public Optional<Service> updateServiceMetadata(@Argument String id, @Argument String key, @Argument String value) {
+    public Optional<RegisteredService> updateServiceMetadata(@Argument String id, @Argument String key, @Argument String value) {
         return this.serviceDao.updateServiceMetadata(id, key, value);
     }
 
