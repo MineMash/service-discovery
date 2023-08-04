@@ -1,7 +1,7 @@
 package dev.minemesh.controller.dao;
 
 import dev.minemesh.controller.model.Service;
-import dev.minemesh.controller.model.ServiceState;
+import dev.minemesh.servicediscovery.common.ServiceState;
 
 import java.util.List;
 import java.util.Optional;

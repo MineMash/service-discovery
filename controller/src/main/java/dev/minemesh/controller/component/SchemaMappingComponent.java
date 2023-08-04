@@ -12,17 +12,17 @@ public class SchemaMappingComponent {
 
     @SchemaMapping
     public String get(Metadata metadata, @Argument String key) {
-
+        return null;
     }
 
     @SchemaMapping
     public List<String> getMultiple(Metadata metadata, @Argument List<String> keys) {
-
+        return null;
     }
 
     @SchemaMapping
     public List<Metadata> entries(Metadata metadata) {
-
+        return null;
     }
 
 }

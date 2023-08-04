@@ -2,7 +2,7 @@ package dev.minemesh.controller.controller;
 
 import dev.minemesh.controller.dao.ServiceDao;
 import dev.minemesh.controller.model.Service;
-import dev.minemesh.controller.model.ServiceState;
+import dev.minemesh.servicediscovery.common.ServiceState;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.stereotype.Controller;

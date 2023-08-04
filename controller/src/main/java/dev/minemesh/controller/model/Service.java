@@ -1,5 +1,7 @@
 package dev.minemesh.controller.model;
 
+import dev.minemesh.servicediscovery.common.ServiceState;
+
 import java.util.List;
 
 public class Service {

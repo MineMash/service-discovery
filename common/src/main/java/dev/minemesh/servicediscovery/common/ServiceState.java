@@ -1,4 +1,4 @@
-package dev.minemesh.controller.model;
+package dev.minemesh.servicediscovery.common;
 
 public enum ServiceState {
 
