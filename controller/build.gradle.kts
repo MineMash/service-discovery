@@ -17,7 +17,3 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:kafka")
 }
-
-tasks.withType<Test> {
-	useJUnitPlatform()
-}

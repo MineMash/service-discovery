@@ -9,8 +9,6 @@ public class MetadataModel implements Metadata {
 
     private UUID referenceId;
 
-    private List<MetadataEntry> entries;
-
     public MetadataModel() {
     }
 
@@ -18,35 +16,26 @@ public class MetadataModel implements Metadata {
         this.referenceId = referenceId;
     }
 
-    public MetadataModel(UUID referenceId, List<MetadataEntry> entries) {
-        this.referenceId = referenceId;
-        this.entries = entries;
-    }
-
     public UUID getReferenceId() {
         return this.referenceId;
     }
 
     @Override
-    public List<MetadataEntry> getEntries() {
-        return this.entries;
+    public List<MetadataEntry> findAll() {
+        throw new UnsupportedOperationException("Unsupported on controller. Use MetadataSchemaMapping.findMultipleByKeys(List<String>) instead.");
     }
 
     @Override
-    public String get(String key) {
-        return null;
+    public String findByKey(String key) {
+        throw new UnsupportedOperationException("Unsupported on controller. Use MetadataSchemaMapping.findMultipleByKeys(List<String>) instead.");
     }
 
     @Override
-    public List<String> getMultiple(List<String> keys) {
-        return null;
+    public List<String> findMultipleByKeys(List<String> keys) {
+        throw new UnsupportedOperationException("Unsupported on controller. Use MetadataSchemaMapping.findMultipleByKeys(List<String>) instead.");
     }
 
     public void setReferenceId(UUID referenceId) {
         this.referenceId = referenceId;
-    }
-
-    public void setEntries(List<MetadataEntry> entries) {
-        this.entries = entries;
     }
 }

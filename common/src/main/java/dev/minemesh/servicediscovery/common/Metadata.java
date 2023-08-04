@@ -4,11 +4,11 @@ import java.util.List;
 
 public interface Metadata {
 
-    List<MetadataEntry> getEntries();
+    List<MetadataEntry> findAll();
 
-    String get(String key);
+    String findByKey(String key);
 
-    List<String> getMultiple(List<String> keys);
+    List<String> findMultipleByKeys(List<String> keys);
 
     interface MetadataEntry {
 

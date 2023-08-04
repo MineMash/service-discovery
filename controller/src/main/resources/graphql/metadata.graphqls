@@ -1,8 +1,7 @@
 type Metadata {
-    entries: [MetadataEntry!]!
-
-    get(key: String!): String
-    getMultiple(keys: [String!]!): [String!]!
+    findAll: [MetadataEntry!]!
+    findByKey(key: String!): String
+    findMultipleByKeys(keys: [String!]!): [String!]!
 }
 
 type MetadataEntry {

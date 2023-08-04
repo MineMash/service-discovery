@@ -28,7 +28,14 @@ fun configureJavaProject(project: Project) = project.run {
         sourceCompatibility = JavaVersion.VERSION_17;
     }
 
-    if (this.path != ":common") {
-        dependencies.implementation(project(":common"))
+    dependencies {
+        // using 'project' instead of 'this' because scope is 'DependencyHandlerScope' and not the project itself
+        if (project.path != ":common") {
+            implementation(project(":common"))
+        }
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 }
