@@ -1,6 +1,6 @@
 package dev.minemesh.controller.controller;
 
-import dev.minemesh.controller.dao.ServiceDao;
+import dev.minemesh.controller.repository.ServiceRepository;
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.servicediscovery.common.RegisteredService;
 import dev.minemesh.servicediscovery.common.Service;
@@ -14,30 +14,30 @@ import java.util.Optional;
 @Controller
 public class ServiceMutationController {
 
-    private final ServiceDao serviceDao;
+    private final ServiceRepository serviceRepository;
 
-    public ServiceMutationController(ServiceDao serviceDao) {
-        this.serviceDao = serviceDao;
+    public ServiceMutationController() {
+        this.serviceRepository = null;
     }
 
     @MutationMapping
-    public ServiceModel registerService(@Argument Service service) {
-        return this.serviceDao.registerService(service);
+    public RegisteredService registerService(@Argument Service service) {
+        return this.serviceRepository.registerService(service);
     }
 
     @MutationMapping
     public boolean unregisterService(@Argument String id) {
-        return this.serviceDao.unregisterService(id);
+        return this.serviceRepository.unregisterService(id);
     }
 
     @MutationMapping
     public Optional<RegisteredService> updateServiceState(@Argument String id, @Argument ServiceState state) {
-        return this.serviceDao.updateServiceState(id, state);
+        return this.serviceRepository.updateServiceState(id, state);
     }
 
     @MutationMapping
     public Optional<RegisteredService> updateServiceMetadata(@Argument String id, @Argument String key, @Argument String value) {
-        return this.serviceDao.updateServiceMetadata(id, key, value);
+        return this.serviceRepository.updateServiceMetadata(id, key, value);
     }
 
 }

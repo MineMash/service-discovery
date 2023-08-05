@@ -1,1 +1,13 @@
-
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USER:}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+  profiles:
+    default: prod
+server:
+  port: 8080
+  address: 0.0.0.0
