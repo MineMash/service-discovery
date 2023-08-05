@@ -10,19 +10,19 @@ import org.springframework.data.redis.core.script.RedisScript;
 @Configuration
 public class RedisScriptConfiguration {
 
-    private static final String SCRIPTS_TEMPLATE = "script/%s.lua";
-
-    @Bean("script-register-service")
-    public RedisScript<RegisteredService> registerServiceScript() {
-        Resource scriptSource = new ClassPathResource(getScriptPath("register_service"));
-        return RedisScript.of(scriptSource, RegisteredService.class);
+    @Bean("script-get-counter")
+    public RedisScript<Short> registerServiceScript() {
+        Resource scriptSource = new ClassPathResource(getScriptPath("get_counter"));
+        return RedisScript.of(scriptSource, Short.class);
     }
 
     @Bean("script-unregister-service")
-    public RedisScript<RegisteredService> unregisterServiceScript() {
+    public RedisScript<Boolean> unregisterServiceScript() {
         Resource scriptSource = new ClassPathResource(getScriptPath("unregister_service"));
-        return RedisScript.of(scriptSource, RegisteredService.class);
+        return RedisScript.of(scriptSource, Boolean.class);
     }
+
+    private static final String SCRIPTS_TEMPLATE = "script/%s.lua";
 
     private static String getScriptPath(String scriptName) {
         return SCRIPTS_TEMPLATE.formatted(scriptName);
