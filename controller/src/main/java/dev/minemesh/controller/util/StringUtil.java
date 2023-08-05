@@ -5,10 +5,9 @@ import java.nio.ByteBuffer;
 
 public class StringUtil {
 
-    public static String generateIdString(long unixSeconds, int microseconds, short counter) {
-        var buffer = ByteBuffer.allocate(14)
-                .putLong(unixSeconds)
-                .putInt(microseconds)
+    public static String generateIdString(long time, short counter) {
+        var buffer = ByteBuffer.allocate(10)
+                .putLong(time)
                 .putShort(counter);
         var bytes = buffer.array();
 

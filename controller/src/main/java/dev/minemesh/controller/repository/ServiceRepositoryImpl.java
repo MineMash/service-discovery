@@ -1,13 +1,12 @@
 package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.ServiceModel;
-import dev.minemesh.servicediscovery.common.RegisteredService;
+import dev.minemesh.controller.util.StringUtil;
 import graphql.com.google.common.collect.ImmutableList;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -15,7 +14,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 
-import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
@@ -45,17 +45,34 @@ public class ServiceRepositoryImpl implements ServiceRepository {
 
         Mono<Long> time = this.template.createMono(connection -> connection.serverCommands().time());
         Mono<Short> counter = Mono.from(this.template.execute(this.counterScript));
-        Mono<String> id = time.
+
+        return Mono.zip(time, counter)
+                // generate id
+                .map(tuple -> StringUtil.generateIdString(tuple.getT1(), tuple.getT2()))
+                // set id and publish entity
+                .map(generatedId -> {
+                    entity.setId(generatedId);
+                    this.valueOperations.set(idToKey(generatedId), entity);
+
+                    return entity;
+                });
     }
 
     @Override
     public <S extends ServiceModel> Flux<S> saveAll(Iterable<S> entities) {
-        return null;
+        Collection<Mono<S>> monos = new LinkedList<>();
+
+        for (S entity : entities) {
+            monos.add(this.save(entity));
+        }
+
+        return Flux.merge(monos.toArray(Mono[]::new));
     }
 
     @Override
     public <S extends ServiceModel> Flux<S> saveAll(Publisher<S> entityStream) {
-        return null;
+        return Flux.from(entityStream)
+                .flatMap(this::save);
     }
 
     @Override
