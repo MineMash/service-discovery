@@ -22,7 +22,7 @@ public class RedisScriptConfiguration {
         return RedisScript.of(scriptSource, Boolean.class);
     }
 
-    private static final String SCRIPTS_TEMPLATE = "script/%s.lua";
+    private static final String SCRIPTS_TEMPLATE = "scripts/%s.lua";
 
     private static String getScriptPath(String scriptName) {
         return SCRIPTS_TEMPLATE.formatted(scriptName);
