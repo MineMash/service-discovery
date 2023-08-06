@@ -11,13 +11,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.serializer.RedisElementReader;
+import org.springframework.data.redis.serializer.RedisElementWriter;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
@@ -46,7 +50,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
         }
 
         Mono<Long> time = this.template.createMono(connection -> connection.serverCommands().time());
-        Mono<Short> counter = Mono.from(this.template.execute(this.counterScript));
+        Mono<Short> counter = this.executeCounterScript();
 
         return Mono.zip(time, counter)
                 // generate id
@@ -55,9 +59,27 @@ public class ServiceRepositoryImpl implements ServiceRepository {
                 .map(generatedId -> {
                     entity.setId(generatedId);
                     this.valueOperations.set(idToKey(generatedId), entity);
-
                     return entity;
-                });
+                })
+                .flatMap(s -> this.valueOperations.set(idToKey(s.getId()), entity).then(Mono.just(s)));
+    }
+
+    /**
+     * Executes the get_counter script with custom reader.
+     * The default reader tries to parse the number to create a ServiceModel (?)
+     *
+     * @return the counter
+     */
+    private Mono<Short> executeCounterScript() {
+        Flux<Short> result = this.template.execute(
+                this.counterScript,
+                List.of(),
+                List.of(),
+                ignored -> ByteBuffer.allocate(0),
+                buffer -> Short.valueOf(new String(buffer.array()))
+        );
+
+        return Mono.from(result);
     }
 
     @Override

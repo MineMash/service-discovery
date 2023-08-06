@@ -3,9 +3,13 @@ package dev.minemesh.controller.model;
 import dev.minemesh.servicediscovery.common.Network;
 
 public class NetworkModel implements Network {
+
     private String address;
     private int runningPort;
     private int healthCheckPort;
+
+    public NetworkModel() {
+    }
 
     public NetworkModel(String address, int runningPort, int healthCheckPort) {
         this.address = address;

@@ -1,11 +1,9 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
 import org.springframework.boot.gradle.tasks.run.BootRun
 
 plugins {
     java
     id("org.springframework.boot") version "3.1.2"
     id("io.spring.dependency-management") version "1.1.2"
-    id("com.palantir.docker-run") version "0.35.0"
 }
 
 dependencies {
@@ -23,21 +21,26 @@ dependencies {
     testImplementation("org.testcontainers:kafka")
 }
 
-dockerRun {
-    name = "test-container"
-    image = "busybox"
-}
-
-tasks.withType<BootRun> {
-	this.args("--spring.profiles.active=local")
-}
+// Tasks
 
 task("bootRunLocal") {
     this.group = "Service Discovery Controller"
     this.description = "Runs the spring application in your local environment"
 
-    if (project.hasProperty("clean")) {
+    if (project.hasProperty("clean") && project.property("clean") == "true") {
         this.dependsOn("cleanupContainers")
+    }
+
+    if (project.hasProperty("debug") && project.property("debug") == "true") {
+        tasks.withType<BootRun> {
+            this.args("--debug=true")
+        }
+    }
+
+    this.doLast("Activate 'local' Profile") {
+        tasks.withType<BootRun> {
+            this.args("--spring.profiles.active=local")
+        }
     }
 
     // start redis container
@@ -59,6 +62,12 @@ task("bootRunLocal") {
 
 	}
 
+    this.doLast("Information") {
+        println("RedisInsight is now available on http://localhost:8001")
+        println("GraphiQl will start on http://localhost:8080/graphiql")
+    }
+
+    // TODO runs always but should only if task successes
 	this.finalizedBy("bootRun")
 }
 
@@ -66,12 +75,15 @@ task("cleanupContainers") {
 	this.group = "Service Discovery Controller"
 	this.description = "Stops all running containers from 'bootRunLocal'"
 
-	this.doLast("Stopping redis") {
-		exec {
-			stopContainer("service-discovery-bootRunLocal-redis-stack")
-		}
-	}
+    this.doLast("Stopping redis") {
+        exec {
+            this.setIgnoreExitValue(true)
+            stopContainer("service-discovery-bootRunLocal-redis-stack")
+        }
+    }
 }
+
+// container stuff with docker
 
 fun ExecSpec.runContainer(name: String, image: String, vararg additionArguments: String) {
     val args = mutableListOf("run", "-d", "--rm", "--name", name)

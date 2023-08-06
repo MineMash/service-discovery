@@ -1,6 +1,5 @@
 package dev.minemesh.controller.configuration;
 
-import dev.minemesh.servicediscovery.common.RegisteredService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
