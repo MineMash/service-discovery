@@ -8,6 +8,9 @@ spring:
       database: ${REDIS_DATABASE:0}
   profiles:
     default: prod
+  cache:
+    redis:
+      key-prefix: service-discovery
 server:
   port: 8080
   address: 0.0.0.0

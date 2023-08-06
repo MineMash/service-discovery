@@ -201,7 +201,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
 
     }
 
-    private static final String SERVICE_PREFIX = "service-";
+    private static final String SERVICE_PREFIX = "service:";
 
     private static String idToKey(String id) {
         return SERVICE_PREFIX + id;
@@ -209,26 +209,6 @@ public class ServiceRepositoryImpl implements ServiceRepository {
 
     private static String keyToId(String key) {
         return key.substring(SERVICE_PREFIX.length());
-    }
-
-    private static <T, M> Subscriber<T> subscribeOnNext(Consumer<T> consumer, MonoSink<M> mono) {
-        return new Subscriber<T>() {
-            @Override
-            public void onSubscribe(Subscription s) {}
-
-            @Override
-            public void onNext(T t) {
-                consumer.accept(t);
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                mono.error(t);
-            }
-
-            @Override
-            public void onComplete() {}
-        };
     }
 
 }
