@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -23,6 +24,14 @@ public class RedisConfiguration {
         RedisSerializationContext<String, ServiceModel> context = builder.value(valueSerializer).build();
 
         return new ReactiveRedisTemplate<>(connectionFactory, context);
+    }
+
+    @Bean("template-string-string")
+    public ReactiveRedisTemplate<String, String> reactiveRedisTemplateString(ReactiveRedisConnectionFactory connectionFactory) {
+        return new ReactiveRedisTemplate<>(
+                connectionFactory,
+                RedisSerializationContext.fromSerializer(RedisSerializer.string())
+        );
     }
 
     @Bean
