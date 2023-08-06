@@ -4,15 +4,12 @@ import dev.minemesh.servicediscovery.common.Metadata;
 import dev.minemesh.servicediscovery.common.Network;
 import dev.minemesh.servicediscovery.common.RegisteredService;
 import dev.minemesh.servicediscovery.common.ServiceState;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.util.Lazy;
 
-import java.lang.ref.Reference;
 import java.util.UUID;
 
 public class ServiceModel implements RegisteredService {
 
-    @Id
     private String id;
     private Network network;
     private ServiceState state;

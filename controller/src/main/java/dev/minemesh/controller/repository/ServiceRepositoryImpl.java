@@ -2,6 +2,7 @@ package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.util.StringUtil;
+import dev.minemesh.servicediscovery.common.ServiceState;
 import graphql.com.google.common.collect.ImmutableList;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
@@ -19,6 +21,7 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
+@Repository
 public class ServiceRepositoryImpl implements ServiceRepository {
 
     private final ReactiveRedisTemplate<String, ServiceModel> template;
@@ -33,7 +36,6 @@ public class ServiceRepositoryImpl implements ServiceRepository {
         this.template = reactiveRedisTemplate;
         this.valueOperations = reactiveRedisTemplate.opsForValue();
     }
-
 
     @Override
     public <S extends ServiceModel> Mono<S> save(S entity) {
@@ -164,6 +166,17 @@ public class ServiceRepositoryImpl implements ServiceRepository {
     public Mono<Void> deleteAll() {
         Publisher<String> keys = this.template.keys("%s*".formatted(SERVICE_PREFIX));
         return this.template.delete(keys).then();
+    }
+
+    @Override
+    public Mono<ServiceModel> updateStateById(String id, ServiceState state) {
+        return this.findById(id)
+                .map(service -> {
+                    service.setState(state);
+                    return service;
+                })
+                .flatMap(this::save);
+
     }
 
     private static final String SERVICE_PREFIX = "service-";

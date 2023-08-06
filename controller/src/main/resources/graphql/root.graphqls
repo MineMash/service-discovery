@@ -4,8 +4,8 @@ schema {
 }
 
 type Query {
-    getService(id: ID!): Service
-    getAllServices: [Service!]!
+    findServiceById(id: ID!): Service
+    findAllServices: [Service!]!
 }
 
 type Mutation {
