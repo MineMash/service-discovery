@@ -2,11 +2,9 @@ type Service {
     id: ID!
     state: ServiceState!
     network: Network!
-    metadata: Metadata
 }
 
 input HeadlessService {
     state: ServiceState
     network: NetworkInput!
-    metadata: [MetadataEntryInput!]!
 }

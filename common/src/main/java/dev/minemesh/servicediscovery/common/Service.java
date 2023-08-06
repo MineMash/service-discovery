@@ -6,6 +6,4 @@ public interface Service {
 
     ServiceState getState();
 
-    Metadata getMetadata();
-
 }

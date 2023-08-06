@@ -36,6 +36,10 @@ task("bootRunLocal") {
     this.group = "Service Discovery Controller"
     this.description = "Runs the spring application in your local environment"
 
+    if (project.hasProperty("clean")) {
+        this.dependsOn("cleanupContainers")
+    }
+
     // start redis container
     this.doLast("Setup redis") {
         // run redis

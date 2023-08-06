@@ -21,8 +21,8 @@ public class ServiceMutationController {
     }
 
     @MutationMapping
-    public Mono<RegisteredService> registerService(@Argument ServiceModel service) {
-        return this.serviceRepository.save(service).cast(RegisteredService.class);
+    public Mono<RegisteredService> registerService(@Argument ServiceModel headless) {
+        return this.serviceRepository.save(headless).cast(RegisteredService.class);
     }
 
     @MutationMapping
