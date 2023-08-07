@@ -44,23 +44,17 @@ task("bootRunLocal") {
     }
 
     // start redis container
-    this.doLast("Setup redis") {
-        // run redis
+    this.doLast("Setup dependencies") {
+        // run docker compose
         exec {
-            runContainer(
-                name = "service-discovery-bootRunLocal-redis-stack",
-                image = "redis/redis-stack:6.2.6-v9",
-                additionArguments = arrayOf(
-					"-p", "6379:6379", // redis port
-					"-p", "8001:8001", // redis insight port
-				)
+            this.executable = "docker"
+            this.args(
+                "compose",
+                "-f", "docker-compose.bootRunLocal.yaml",
+                "up", "-d"
             )
         }
     }
-
-	this.doLast("Setup kafka") {
-
-	}
 
     this.doLast("Information") {
         println("RedisInsight is now available on http://localhost:8001")
@@ -68,34 +62,23 @@ task("bootRunLocal") {
     }
 
     // TODO runs always but should only if task successes
-	this.finalizedBy("bootRun")
+    this.finalizedBy("bootRun")
 }
 
 task("cleanupContainers") {
-	this.group = "Service Discovery Controller"
-	this.description = "Stops all running containers from 'bootRunLocal'"
+    this.group = "Service Discovery Controller"
+    this.description = "Stops all running containers from 'bootRunLocal'"
 
     this.doLast("Stopping redis") {
         exec {
             this.setIgnoreExitValue(true)
-            stopContainer("service-discovery-bootRunLocal-redis-stack")
+
+            this.executable = "docker"
+            this.args(
+                "compose",
+                "-f", "docker-compose.bootRunLocal.yaml",
+                "down"
+            )
         }
     }
-}
-
-// container stuff with docker
-
-fun ExecSpec.runContainer(name: String, image: String, vararg additionArguments: String) {
-    val args = mutableListOf("run", "-d", "--rm", "--name", name)
-    args.addAll(additionArguments)
-	args.add(image)
-
-    this.executable = "docker"
-    this.args = args
-}
-
-fun ExecSpec.stopContainer(name: String) {
-	this.executable = "docker"
-
-	this.args("stop", name)
 }
