@@ -1,14 +1,16 @@
 package dev.minemesh.controller.repository;
 
+import dev.minemesh.controller.model.MetadataIdentifier;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 @Repository
 public class MetadataRepositoryImpl implements MetadataRepository {
@@ -23,37 +25,37 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public <S extends String> Mono<S> save(S entity) {
+    public Mono<String> save(MetadataIdentifier id, String entity) {
         return null;
     }
 
     @Override
-    public <S extends String> Flux<S> saveAll(Iterable<S> entities) {
+    public Flux<String> saveAll(Map<MetadataIdentifier, String> entities) {
         return null;
     }
 
     @Override
-    public <S extends String> Flux<S> saveAll(Publisher<S> entityStream) {
+    public Flux<String> saveAll(Publisher<Pair<MetadataIdentifier, String>> entityStream) {
         return null;
     }
 
     @Override
-    public Mono<String> findById(String s) {
+    public Mono<String> findById(MetadataIdentifier metadataIdentifier) {
         return null;
     }
 
     @Override
-    public Mono<String> findById(Publisher<String> id) {
+    public Mono<String> findById(Publisher<MetadataIdentifier> id) {
         return null;
     }
 
     @Override
-    public Mono<Boolean> existsById(String s) {
+    public Mono<Boolean> existsById(MetadataIdentifier metadataIdentifier) {
         return null;
     }
 
     @Override
-    public Mono<Boolean> existsById(Publisher<String> id) {
+    public Mono<Boolean> existsById(Publisher<MetadataIdentifier> id) {
         return null;
     }
 
@@ -63,12 +65,12 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Flux<String> findAllById(Iterable<String> strings) {
+    public Flux<String> findAllById(Iterable<MetadataIdentifier> metadataIdentifiers) {
         return null;
     }
 
     @Override
-    public Flux<String> findAllById(Publisher<String> idStream) {
+    public Flux<String> findAllById(Publisher<MetadataIdentifier> idStream) {
         return null;
     }
 
@@ -78,12 +80,12 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Mono<Void> deleteById(String s) {
+    public Mono<Void> deleteById(MetadataIdentifier metadataIdentifier) {
         return null;
     }
 
     @Override
-    public Mono<Void> deleteById(Publisher<String> id) {
+    public Mono<Void> deleteById(Publisher<MetadataIdentifier> id) {
         return null;
     }
 
@@ -93,7 +95,7 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Mono<Void> deleteAllById(Iterable<? extends String> strings) {
+    public Mono<Void> deleteAllById(Iterable<? extends MetadataIdentifier> metadataIdentifiers) {
         return null;
     }
 
