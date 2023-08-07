@@ -1,6 +1,7 @@
 package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.MetadataIdentifier;
+import dev.minemesh.controller.model.metadata.MetadataEntry;
 import org.reactivestreams.Publisher;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.util.Pair;
@@ -15,6 +16,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the
      * entity instance completely.
      *
+     * @param id must not be {@literal null}.
      * @param entity must not be {@literal null}.
      * @return {@link Mono} emitting the saved entity.
      * @throws IllegalArgumentException          in case the given {@literal entity} is {@literal null}.
@@ -24,12 +26,13 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
     /**
      * Saves all given entities.
      *
+     * @param serviceId must not be {@literal null}.
      * @param entities must not be {@literal null}.
      * @return {@link Flux} emitting the saved entities.
      * @throws IllegalArgumentException          in case the given {@link Iterable entities} or one of its entities is
      *                                           {@literal null}.
      */
-    Flux<String> saveAll(Map<MetadataIdentifier, String> entities);
+    Flux<String> saveAll(String serviceId, Map<String, String> entities);
 
     /**
      * Saves all given entities.
@@ -47,7 +50,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return {@link Mono} emitting the entity with the given id or {@link Mono#empty()} if none found.
      * @throws IllegalArgumentException in case the given {@literal id} is {@literal null}.
      */
-    Mono<String> findById(MetadataIdentifier metadataIdentifier);
+    Mono<String> findByKey(MetadataIdentifier metadataIdentifier);
 
     /**
      * Retrieves an entity by its id supplied by a {@link Publisher}.
@@ -56,7 +59,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return {@link Mono} emitting the entity with the given id or {@link Mono#empty()} if none found.
      * @throws IllegalArgumentException in case the given {@link Publisher id} is {@literal null}.
      */
-    Mono<String> findById(Publisher<MetadataIdentifier> id);
+    Mono<String> findByKey(Publisher<MetadataIdentifier> id);
 
     /**
      * Returns whether an entity with the given {@literal id} exists.
@@ -65,7 +68,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return {@link Mono} emitting {@literal true} if an entity with the given id exists, {@literal false} otherwise.
      * @throws IllegalArgumentException in case the given {@literal id} is {@literal null}.
      */
-    Mono<Boolean> existsById(MetadataIdentifier metadataIdentifier);
+    Mono<Boolean> existsByKey(MetadataIdentifier metadataIdentifier);
 
     /**
      * Returns whether an entity with the given id, supplied by a {@link Publisher}, exists. Uses the first emitted
@@ -75,14 +78,23 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return {@link Mono} emitting {@literal true} if an entity with the given id exists, {@literal false} otherwise.
      * @throws IllegalArgumentException in case the given {@link Publisher id} is {@literal null}.
      */
-    Mono<Boolean> existsById(Publisher<MetadataIdentifier> id);
+    Mono<Boolean> existsByKey(Publisher<MetadataIdentifier> id);
 
     /**
      * Returns all instances of the type.
      *
      * @return {@link Flux} emitting all entities.
+     * @param serviceId must not be {@literal null}.
      */
-    Flux<String> findAll();
+    Flux<MetadataEntry> findAll(String serviceId);
+
+    /**
+     * Returns all instances of the type.
+     *
+     * @return {@link Flux} emitting all entities.
+     * @param serviceId must not be {@literal null}.
+     */
+    Flux<MetadataEntry> findAll(Publisher<String> serviceId);
 
     /**
      * Returns all instances of the type {@code T} with the given IDs.
@@ -91,12 +103,13 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * <p>
      * Note that the order of elements in the result is not guaranteed.
      *
+     * @param serviceId           must not be {@literal null}.
      * @param metadataIdentifiers must not be {@literal null} nor contain any {@literal null} values.
      * @return {@link Flux} emitting the found entities. The size can be equal or less than the number of given
      * {@literal ids}.
      * @throws IllegalArgumentException in case the given {@link Iterable ids} or one of its items is {@literal null}.
      */
-    Flux<String> findAllById(Iterable<MetadataIdentifier> metadataIdentifiers);
+    Flux<MetadataEntry> findAllByKey(String serviceId, Iterable<String> metadataIdentifiers);
 
     /**
      * Returns all instances of the type {@code T} with the given IDs supplied by a {@link Publisher}.
@@ -109,14 +122,23 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return {@link Flux} emitting the found entities.
      * @throws IllegalArgumentException in case the given {@link Publisher idStream} is {@literal null}.
      */
-    Flux<String> findAllById(Publisher<MetadataIdentifier> idStream);
+    Flux<MetadataEntry> findAllByKey(Publisher<MetadataIdentifier> idStream);
 
     /**
      * Returns the number of entities available.
      *
+     * @param serviceId must not be {@literal null}.
      * @return {@link Mono} emitting the number of entities.
      */
-    Mono<Long> count();
+    Mono<Long> count(String serviceId);
+
+    /**
+     * Returns the number of entities available.
+     *
+     * @param serviceId must not be {@literal null}.
+     * @return {@link Mono} emitting the number of entities.
+     */
+    Mono<Long> count(Publisher<String> serviceId);
 
     /**
      * Deletes the entity with the given id.
@@ -127,7 +149,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return {@link Mono} signaling when operation has completed.
      * @throws IllegalArgumentException in case the given {@literal id} is {@literal null}.
      */
-    Mono<Void> deleteById(MetadataIdentifier metadataIdentifier);
+    Mono<Void> deleteByKey(MetadataIdentifier metadataIdentifier);
 
     /**
      * Deletes the entity with the given id supplied by a {@link Publisher}.
@@ -138,19 +160,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return {@link Mono} signaling when operation has completed.
      * @throws IllegalArgumentException in case the given {@link Publisher id} is {@literal null}.
      */
-    Mono<Void> deleteById(Publisher<MetadataIdentifier> id);
-
-    /**
-     * Deletes a given entity.
-     *
-     * @param entity must not be {@literal null}.
-     * @return {@link Mono} signaling when operation has completed.
-     * @throws IllegalArgumentException          in case the given entity is {@literal null}.
-     * @throws OptimisticLockingFailureException when the entity uses optimistic locking and has a version attribute with
-     *                                           a different value from that found in the persistence store. Also thrown if the entity is assumed to be
-     *                                           present but does not exist in the database.
-     */
-    Mono<Void> delete(String entity);
+    Mono<Void> deleteByKey(Publisher<MetadataIdentifier> id);
 
     /**
      * Deletes all instances of the type {@code T} with the given IDs.
@@ -163,37 +173,21 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      *                                  {@literal null}.
      * @since 2.5
      */
-    Mono<Void> deleteAllById(Iterable<? extends MetadataIdentifier> metadataIdentifiers);
-
-    /**
-     * Deletes the given entities.
-     *
-     * @param entities must not be {@literal null}.
-     * @return {@link Mono} signaling when operation has completed.
-     * @throws IllegalArgumentException          in case the given {@link Iterable entities} or one of its entities is
-     *                                           {@literal null}.
-     * @throws OptimisticLockingFailureException when at least one entity uses optimistic locking and has a version
-     *                                           attribute with a different value from that found in the persistence store. Also thrown if at least one
-     *                                           entity is assumed to be present but does not exist in the database.
-     */
-    Mono<Void> deleteAll(Iterable<? extends String> entities);
-
-    /**
-     * Deletes the given entities supplied by a {@link Publisher}.
-     *
-     * @param entityStream must not be {@literal null}.
-     * @return {@link Mono} signaling when operation has completed.
-     * @throws IllegalArgumentException          in case the given {@link Publisher entityStream} is {@literal null}.
-     * @throws OptimisticLockingFailureException when at least one entity uses optimistic locking and has a version
-     *                                           attribute with a different value from that found in the persistence store. Also thrown if at least one
-     *                                           entity is assumed to be present but does not exist in the database.
-     */
-    Mono<Void> deleteAll(Publisher<? extends String> entityStream);
+    Mono<Void> deleteAllByKey(String serviceId, Iterable<? extends String> metadataIdentifiers);
 
     /**
      * Deletes all entities managed by the repository.
      *
+     * @param serviceId must not be {@literal null}.
      * @return {@link Mono} signaling when operation has completed.
      */
-    Mono<Void> deleteAll();
+    Mono<Void> deleteAll(String serviceId);
+
+    /**
+     * Deletes all entities managed by the repository.
+     *
+     * @param serviceId must not be {@literal null}.
+     * @return {@link Mono} signaling when operation has completed.
+     */
+    Mono<Void> deleteAll(Publisher<String> serviceId);
 }
