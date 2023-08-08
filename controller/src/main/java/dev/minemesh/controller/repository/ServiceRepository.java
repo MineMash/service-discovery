@@ -1,10 +1,9 @@
 package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.ServiceModel;
-import dev.minemesh.servicediscovery.common.ServiceState;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ServiceRepository extends Repository<ServiceModel, String> {
@@ -54,7 +53,7 @@ public interface ServiceRepository extends Repository<ServiceModel, String> {
      *
      * @return all entities
      */
-    Iterable<ServiceModel> findAll();
+    List<ServiceModel> findAll();
 
     /**
      * Returns all instances of the type {@code T} with the given IDs.
@@ -124,7 +123,5 @@ public interface ServiceRepository extends Repository<ServiceModel, String> {
      * @return true if changes happened in result of this method call.
      */
     boolean deleteAll();
-
-    Optional<ServiceModel> updateStateById(String id, ServiceState state);
 
 }

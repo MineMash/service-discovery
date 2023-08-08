@@ -13,5 +13,5 @@ type Mutation {
     unregisterService(id: ID!): Boolean!
 
     updateServiceState(id: ID!, state: ServiceState): Service
-    updateServiceMetadata(id: ID!, key: String!, value: String): Service
+    updateServiceMetadata(id: ID!, entry: MetadataEntryInput!): Service
 }

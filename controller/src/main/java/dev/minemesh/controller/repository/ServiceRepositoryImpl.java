@@ -2,7 +2,6 @@ package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.util.StringUtil;
-import dev.minemesh.servicediscovery.common.ServiceState;
 import graphql.com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisCallback;
@@ -73,7 +72,7 @@ public class ServiceRepositoryImpl implements ServiceRepository {
     }
 
     @Override
-    public Iterable<ServiceModel> findAll() {
+    public List<ServiceModel> findAll() {
         Set<String> all = this.template.keys("%s*".formatted(SERVICE_PREFIX));
 
         if (all == null) return List.of();
@@ -122,18 +121,9 @@ public class ServiceRepositoryImpl implements ServiceRepository {
 
     @Override
     public boolean deleteAll() {
-        this.template.delete(
+        return this.template.delete(
                 this.template.keys("%s*".formatted(SERVICE_PREFIX))
-        );
-    }
-
-    @Override
-    public Optional<ServiceModel> updateStateById(String id, ServiceState state) {
-        return this.findById(id)
-                .map(service -> {
-                    service.setState(state);
-                    return this.save(service);
-                });
+        ) >= 1;
     }
 
     private static final String SERVICE_PREFIX = "service:";

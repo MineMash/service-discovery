@@ -71,7 +71,7 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Iterable<MetadataEntry> findAll(String id) {
+    public List<MetadataEntry> findAll(String id) {
         return this.hashOps.entries(
                 idToKey(checkNotNull("id", id)))
                 .entrySet()
@@ -81,7 +81,7 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Iterable<IdentifiedMetadataEntry> findAllById(Collection<MetadataIdentifier> metadataIdentifiers) {
+    public List<IdentifiedMetadataEntry> findAllById(Collection<MetadataIdentifier> metadataIdentifiers) {
         return checkNotNull("metadataIdentifiers", metadataIdentifiers)
                 .stream()
                 .map(identifier -> {
@@ -93,7 +93,7 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Iterable<MetadataEntry> findAllById(String id, List<String> keys) {
+    public List<MetadataEntry> findAllById(String id, List<String> keys) {
         checkNotNull("id", id);
         checkNotNull("keys", keys);
         List<String> values = this.hashOps.multiGet(idToKey(id), keys);

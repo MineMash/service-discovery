@@ -71,7 +71,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * @return all entries.
      * @throws IllegalArgumentException if {@literal id} is {@literal null}.
      */
-    Iterable<MetadataEntry> findAll(String id);
+    List<MetadataEntry> findAll(String id);
 
     /**
      * Returns all instances of the type {@code T} with the given IDs.
@@ -84,7 +84,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * {@literal ids}.
      * @throws IllegalArgumentException in case the given {@link Iterable identifiers} or one of its items is {@literal null}.
      */
-    Iterable<IdentifiedMetadataEntry> findAllById(Collection<MetadataIdentifier> metadataIdentifiers);
+    List<IdentifiedMetadataEntry> findAllById(Collection<MetadataIdentifier> metadataIdentifiers);
 
     /**
      * Returns all instances of the type {@code T} with the given IDs.
@@ -98,7 +98,7 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      * {@literal ids}.
      * @throws IllegalArgumentException in case the given {@literal id}, {@link Iterable keys} or one of its items is {@literal null}.
      */
-    Iterable<MetadataEntry> findAllById(String id, List<String> keys);
+    List<MetadataEntry> findAllById(String id, List<String> keys);
 
     /**
      * Returns the number of entries available.
