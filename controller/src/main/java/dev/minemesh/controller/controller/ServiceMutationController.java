@@ -25,21 +25,13 @@ public class ServiceMutationController {
     }
 
     @MutationMapping
-    public Mono<RegisteredService> registerService(@Argument HeadlessServiceModel headless) {
-        return this.serviceRepository.save(headless.toServiceModel())
-                .cast(RegisteredService.class)
-                .flatMap(registeredService ->
-                        // save metadata when id is ready
-                        this.metadataRepository.saveAll(
-                                registeredService.getId(),
-                                headless.getMetadata()
-                        // but we need to return the service
-                        ).then(Mono.just(registeredService)));
+    public RegisteredService registerService(@Argument HeadlessServiceModel headless) {
+        return this.serviceRepository.save(headless.toServiceModel());
     }
 
     @MutationMapping
-    public Mono<Boolean> unregisterService(@Argument String id) {
-        return this.serviceRepository.deleteById(id).then(Mono.just(Boolean.TRUE));
+    public boolean unregisterService(@Argument String id) {
+        return this.serviceRepository.deleteById(id);
     }
 
     @MutationMapping

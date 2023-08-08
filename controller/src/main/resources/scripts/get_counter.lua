@@ -7,7 +7,7 @@ local function safeCounter()
         redis.call('EXPIRE', 'counter', tostring(EXPIRE_TIME))
     end
 
-    return tostring(counter)
+    return counter
 end
 
 return safeCounter()

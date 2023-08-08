@@ -93,35 +93,35 @@ public class ServiceRepositoryImpl implements ServiceRepository {
     }
 
     @Override
-    public void deleteById(String id) {
-        this.template.delete(idToKey(id));
+    public boolean deleteById(String id) {
+        return this.template.delete(idToKey(id));
     }
 
     @Override
-    public void delete(ServiceModel entity) {
-        this.deleteById(entity.getId());
+    public boolean delete(ServiceModel entity) {
+        return this.deleteById(entity.getId());
     }
 
     @Override
-    public void deleteAllById(Iterable<? extends String> ids) {
-        this.template.delete(
+    public boolean deleteAllById(Iterable<? extends String> ids) {
+        return this.template.delete(
                 StreamSupport.stream(ids.spliterator(), false)
                         .map(ServiceRepositoryImpl::idToKey)
                         .toList()
-        );
+        ) >= 1;
     }
 
     @Override
-    public void deleteAll(Iterable<? extends ServiceModel> entities) {
-        this.template.delete(
+    public boolean deleteAll(Iterable<? extends ServiceModel> entities) {
+        return this.template.delete(
                 StreamSupport.stream(entities.spliterator(), false)
                         .map(entity -> idToKey(entity.getId()))
                         .toList()
-        );
+        ) >= 1;
     }
 
     @Override
-    public void deleteAll() {
+    public boolean deleteAll() {
         this.template.delete(
                 this.template.keys("%s*".formatted(SERVICE_PREFIX))
         );
