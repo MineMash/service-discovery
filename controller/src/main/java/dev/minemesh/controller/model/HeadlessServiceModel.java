@@ -1,31 +1,27 @@
 package dev.minemesh.controller.model;
 
+import dev.minemesh.controller.model.metadata.MetadataEntry;
 import dev.minemesh.servicediscovery.common.Network;
-import dev.minemesh.servicediscovery.common.RegisteredService;
+import dev.minemesh.servicediscovery.common.Service;
 import dev.minemesh.servicediscovery.common.ServiceState;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-public class ServiceModel implements RegisteredService {
+public class HeadlessServiceModel implements Service {
 
-    private String id;
     private NetworkModel network;
     private ServiceState state;
 
-    public ServiceModel() {}
+    private List<MetadataEntry> metadata;
 
-    public ServiceModel(String id, NetworkModel network, ServiceState state) {
-        this.id = id;
+    public HeadlessServiceModel() {}
+
+    public HeadlessServiceModel(NetworkModel network, ServiceState state, List<MetadataEntry> metadata) {
         this.network = network;
         this.state = state;
-    }
-
-    @Override
-    public String getId() {
-        return this.id;
+        this.metadata = metadata;
     }
 
     @Override
@@ -38,16 +34,20 @@ public class ServiceModel implements RegisteredService {
         return this.state;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public void setNetwork(NetworkModel network) {
         this.network = network;
     }
 
     public void setState(ServiceState state) {
         this.state = state;
+    }
+
+    public List<MetadataEntry> getMetadata() {
+        return this.metadata;
+    }
+
+    public void setMetadata(List<MetadataEntry> metadata) {
+        this.metadata = metadata;
     }
 
     @Override
@@ -64,4 +64,13 @@ public class ServiceModel implements RegisteredService {
     public Map<String, String> findAllMetadata() {
         throw new UnsupportedOperationException("Not supported on controller. Use MetadataRepository");
     }
+
+    public ServiceModel toServiceModel() {
+        return new ServiceModel(
+                null,
+                this.network,
+                this.state
+        );
+    }
+
 }

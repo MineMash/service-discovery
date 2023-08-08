@@ -8,6 +8,7 @@ import org.springframework.data.util.Pair;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Map;
 
 public interface MetadataRepository extends Repository<String, MetadataIdentifier> {
@@ -33,6 +34,17 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
      *                                           {@literal null}.
      */
     Flux<String> saveAll(String serviceId, Map<String, String> entities);
+
+    /**
+     * Saves all given entities.
+     *
+     * @param serviceId must not be {@literal null}.
+     * @param entities must not be {@literal null}.
+     * @return {@link Flux} emitting the saved entities.
+     * @throws IllegalArgumentException          in case the given {@link Iterable entities} or one of its entities is
+     *                                           {@literal null}.
+     */
+    Flux<String> saveAll(String serviceId, Collection<MetadataEntry> entities);
 
     /**
      * Saves all given entities.

@@ -1,6 +1,8 @@
 package dev.minemesh.controller.controller;
 
+import dev.minemesh.controller.model.HeadlessServiceModel;
 import dev.minemesh.controller.model.ServiceModel;
+import dev.minemesh.controller.repository.MetadataRepository;
 import dev.minemesh.controller.repository.ServiceRepository;
 import dev.minemesh.servicediscovery.common.RegisteredService;
 import dev.minemesh.servicediscovery.common.ServiceState;
@@ -15,14 +17,24 @@ import java.util.Optional;
 public class ServiceMutationController {
 
     private final ServiceRepository serviceRepository;
+    private final MetadataRepository metadataRepository;
 
-    public ServiceMutationController(ServiceRepository serviceRepository) {
+    public ServiceMutationController(ServiceRepository serviceRepository, MetadataRepository metadataRepository) {
         this.serviceRepository = serviceRepository;
+        this.metadataRepository = metadataRepository;
     }
 
     @MutationMapping
-    public Mono<RegisteredService> registerService(@Argument ServiceModel headless) {
-        return this.serviceRepository.save(headless).cast(RegisteredService.class);
+    public Mono<RegisteredService> registerService(@Argument HeadlessServiceModel headless) {
+        return this.serviceRepository.save(headless.toServiceModel())
+                .cast(RegisteredService.class)
+                .flatMap(registeredService ->
+                        // save metadata when id is ready
+                        this.metadataRepository.saveAll(
+                                registeredService.getId(),
+                                headless.getMetadata()
+                        // but we need to return the service
+                        ).then(Mono.just(registeredService)));
     }
 
     @MutationMapping

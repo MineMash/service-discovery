@@ -1,6 +1,8 @@
 package dev.minemesh.controller.model.metadata;
 
-public class MetadataEntry {
+import java.util.Map;
+
+public class MetadataEntry implements Map.Entry<String, String> {
 
     private String key;
     private String value;
@@ -25,7 +27,9 @@ public class MetadataEntry {
         return this.value;
     }
 
-    public void setValue(String value) {
+    public String setValue(String value) {
+        String old = this.value;
         this.value = value;
+        return old;
     }
 }

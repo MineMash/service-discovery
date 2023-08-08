@@ -12,9 +12,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 @Repository
@@ -33,9 +31,16 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Flux<String> saveAll(String serivceId, Map<String, String> entities) {
-        return this.hashOps.putAll(serivceId, entities)
-                .thenMany(Flux.fromIterable(entities.values()));
+    public Flux<String> saveAll(String serivceId, Map<String, String> entries) {
+        return this.hashOps.putAll(serivceId, entries)
+                .thenMany(Flux.fromIterable(entries.values()));
+    }
+
+    @Override
+    public Flux<String> saveAll(String serviceId, Collection<MetadataEntry> entries) {
+        return this.saveAll(
+                serviceId,
+                Map.ofEntries(entries.toArray(MetadataEntry[]::new)));
     }
 
     @Override
