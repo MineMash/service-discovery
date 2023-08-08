@@ -4,31 +4,29 @@ import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.util.StringUtil;
 import dev.minemesh.servicediscovery.common.ServiceState;
 import graphql.com.google.common.collect.ImmutableList;
-import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.ReactiveValueOperations;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
 @Repository
 public class ServiceRepositoryImpl implements ServiceRepository {
 
-    private final ReactiveRedisTemplate<String, ServiceModel> template;
-    private final ReactiveValueOperations<String, ServiceModel> valueOperations;
+    private final RedisTemplate<String, ServiceModel> template;
+    private final ValueOperations<String, ServiceModel> valueOperations;
     private final RedisScript<Short> counterScript;
 
     public ServiceRepositoryImpl(
             @Qualifier("script-get-counter") RedisScript<Short> counterScript,
-            @Qualifier("template-service-model") ReactiveRedisTemplate<String, ServiceModel> reactiveRedisTemplate
+            @Qualifier("template-service-model") RedisTemplate<String, ServiceModel> reactiveRedisTemplate
     ) {
         this.counterScript = counterScript;
         this.template = reactiveRedisTemplate;
@@ -36,163 +34,106 @@ public class ServiceRepositoryImpl implements ServiceRepository {
     }
 
     @Override
-    public <S extends ServiceModel> Mono<S> save(S entity) {
+    public <S extends ServiceModel> S save(S entity) {
         String id = entity.getId();
         if (id != null) {
             this.valueOperations.set(idToKey(id), entity);
-            return Mono.just(entity);
+            return entity;
         }
 
-        Mono<Long> time = this.template.createMono(connection -> connection.serverCommands().time());
-        Mono<Short> counter = this.executeCounterScript();
+        this.template.multi();
+        this.template.execute((RedisCallback<Long>) connection -> connection.serverCommands().time());
+        this.template.execute(this.counterScript, List.of());
+        List<Object> result = this.template.exec();
 
-        return Mono.zip(time, counter)
-                // generate id
-                .map(tuple -> StringUtil.generateIdString(tuple.getT1(), tuple.getT2()))
-                // set id and publish entity
-                .map(generatedId -> {
-                    entity.setId(generatedId);
-                    this.valueOperations.set(idToKey(generatedId), entity);
-                    return entity;
-                })
-                .flatMap(s -> this.valueOperations.set(idToKey(s.getId()), entity).then(Mono.just(s)));
-    }
+        String generatedId = StringUtil.generateIdString((Long) result.get(0), (Short) result.get(1));
+        entity.setId(generatedId);
 
-    /**
-     * Executes the get_counter script with custom reader.
-     * The default reader tries to parse the number to create a ServiceModel (?)
-     *
-     * @return the counter
-     */
-    private Mono<Short> executeCounterScript() {
-        Flux<Short> result = this.template.execute(
-                this.counterScript,
-                List.of(),
-                List.of(),
-                ignored -> ByteBuffer.allocate(0),
-                buffer -> Short.valueOf(new String(buffer.array()))
-        );
+        this.valueOperations.set(idToKey(generatedId), entity);
 
-        return Mono.from(result);
+        return entity;
     }
 
     @Override
-    public <S extends ServiceModel> Flux<S> saveAll(Iterable<S> entities) {
-        Collection<Mono<S>> monos = new LinkedList<>();
-
-        for (S entity : entities) {
-            monos.add(this.save(entity));
-        }
-
-        return Flux.merge(monos.toArray(Mono[]::new));
-    }
-
-    @Override
-    public <S extends ServiceModel> Flux<S> saveAll(Publisher<S> entityStream) {
-        return Flux.from(entityStream)
-                .flatMap(this::save);
-    }
-
-    @Override
-    public Mono<ServiceModel> findById(String id) {
-        return this.valueOperations.get(idToKey(id)).map(ser -> ser);
-    }
-
-    @Override
-    public Mono<ServiceModel> findById(Publisher<String> idPublisher) {
-        return Mono.from(idPublisher)
-                .flatMap(this::findById);
-    }
-
-    @Override
-    public Mono<Boolean> existsById(String id) {
-        return this.template.hasKey(idToKey(id));
-    }
-
-    @Override
-    public Mono<Boolean> existsById(Publisher<String> id) {
-        return Mono.from(id)
-                .flatMap(this::existsById);
-    }
-
-    @Override
-    public Flux<ServiceModel> findAll() {
-        Flux<String> all = this.template.keys("%s*".formatted(SERVICE_PREFIX))
-                .map(ServiceRepositoryImpl::keyToId);
-
-        return this.findAllById(all);
-    }
-
-    @Override
-    public Flux<ServiceModel> findAllById(Iterable<String> strings) {
-        return this.valueOperations.multiGet(ImmutableList.copyOf(strings))
-                .flatMapMany(Flux::fromIterable);
-    }
-
-    @Override
-    public Flux<ServiceModel> findAllById(Publisher<String> idStream) {
-        return Flux.from(idStream)
-                .flatMap(this::findById);
-    }
-
-    @Override
-    public Mono<Long> count() {
-        return this.template.keys("%s*".formatted(SERVICE_PREFIX)).count();
-    }
-
-    @Override
-    public Mono<Void> deleteById(String s) {
-        return this.template.delete(idToKey(s)).then();
-    }
-
-    @Override
-    public Mono<Void> deleteById(Publisher<String> id) {
-        return Mono.from(id).flatMap(this::deleteById);
-    }
-
-    @Override
-    public Mono<Void> delete(ServiceModel entity) {
-        return this.deleteById(entity.getId());
-    }
-
-    @Override
-    public Mono<Void> deleteAllById(Iterable<? extends String> strings) {
-        return this.template.delete(Flux.fromIterable(strings).map(ServiceRepositoryImpl::idToKey)).then();
-    }
-
-    @Override
-    public Mono<Void> deleteAll(Iterable<? extends ServiceModel> entities) {
-        Iterable<String> ids = StreamSupport
-                .stream(entities.spliterator(), false)
-                .map(ServiceModel::getId)
+    public <S extends ServiceModel> Iterable<S> saveAll(Iterable<S> entities) {
+        return StreamSupport.stream(entities.spliterator(), false)
+                .map(this::save)
                 .toList();
-        return this.deleteAllById(ids);
     }
 
     @Override
-    public Mono<Void> deleteAll(Publisher<? extends ServiceModel> entityStream) {
-        Flux<String> keyStream = Flux.from(entityStream)
-                .map(ServiceModel
-                        -> idToKey(ServiceModel.getId()));
-
-        return this.template.delete(keyStream).then();
+    public Optional<ServiceModel> findById(String id) {
+        return Optional.ofNullable(this.valueOperations.get(idToKey(id)));
     }
 
     @Override
-    public Mono<Void> deleteAll() {
-        Publisher<String> keys = this.template.keys("%s*".formatted(SERVICE_PREFIX));
-        return this.template.delete(keys).then();
+    public boolean existsById(String id) {
+        // Unbox may produces NPE
+        return Boolean.TRUE.equals(this.template.hasKey(idToKey(id)));
     }
 
     @Override
-    public Mono<ServiceModel> updateStateById(String id, ServiceState state) {
+    public Iterable<ServiceModel> findAll() {
+        Set<String> all = this.template.keys("%s*".formatted(SERVICE_PREFIX));
+
+        if (all == null) return List.of();
+
+        return this.valueOperations.multiGet(all);
+    }
+
+    @Override
+    public Iterable<ServiceModel> findAllById(Iterable<String> ids) {
+        return this.valueOperations.multiGet(ImmutableList.copyOf(ids));
+    }
+
+    @Override
+    public long count() {
+        Collection<String> keys = this.template.keys("%s*".formatted(SERVICE_PREFIX));
+        return keys == null ? 0 : keys.size();
+    }
+
+    @Override
+    public void deleteById(String id) {
+        this.template.delete(idToKey(id));
+    }
+
+    @Override
+    public void delete(ServiceModel entity) {
+        this.deleteById(entity.getId());
+    }
+
+    @Override
+    public void deleteAllById(Iterable<? extends String> ids) {
+        this.template.delete(
+                StreamSupport.stream(ids.spliterator(), false)
+                        .map(ServiceRepositoryImpl::idToKey)
+                        .toList()
+        );
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends ServiceModel> entities) {
+        this.template.delete(
+                StreamSupport.stream(entities.spliterator(), false)
+                        .map(entity -> idToKey(entity.getId()))
+                        .toList()
+        );
+    }
+
+    @Override
+    public void deleteAll() {
+        this.template.delete(
+                this.template.keys("%s*".formatted(SERVICE_PREFIX))
+        );
+    }
+
+    @Override
+    public Optional<ServiceModel> updateStateById(String id, ServiceState state) {
         return this.findById(id)
                 .map(service -> {
                     service.setState(state);
-                    return service;
-                })
-                .flatMap(this::save);
-
+                    return this.save(service);
+                });
     }
 
     private static final String SERVICE_PREFIX = "service:";

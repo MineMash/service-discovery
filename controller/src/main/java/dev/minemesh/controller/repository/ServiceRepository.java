@@ -2,11 +2,12 @@ package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.servicediscovery.common.ServiceState;
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import reactor.core.publisher.Mono;
+import org.springframework.data.repository.CrudRepository;
 
-public interface ServiceRepository extends ReactiveCrudRepository<ServiceModel, String> {
+import java.util.Optional;
 
-    Mono<ServiceModel> updateStateById(String id, ServiceState state);
+public interface ServiceRepository extends CrudRepository<ServiceModel, String> {
+
+    Optional<ServiceModel> updateStateById(String id, ServiceState state);
 
 }
