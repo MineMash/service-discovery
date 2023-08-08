@@ -1,157 +1,142 @@
 package dev.minemesh.controller.repository;
 
+import dev.minemesh.controller.model.metadata.IdentifiedMetadataEntry;
 import dev.minemesh.controller.model.metadata.MetadataEntry;
 import dev.minemesh.controller.model.metadata.MetadataIdentifier;
-import graphql.com.google.common.collect.ImmutableList;
-import org.reactivestreams.Publisher;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.ReactiveHashOperations;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.util.Pair;
+import graphql.com.google.common.collect.ImmutableMap;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.*;
-import java.util.stream.StreamSupport;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+
+import static dev.minemesh.servicediscovery.common.util.Precheck.checkCondition;
+import static dev.minemesh.servicediscovery.common.util.Precheck.checkNotNull;
 
 @Repository
 public class MetadataRepositoryImpl implements MetadataRepository {
 
-    private final ReactiveHashOperations<String, String, String> hashOps;
+    private final RedisTemplate<String, String> template;
+    private final HashOperations<String, String, String> hashOps;
 
-    public MetadataRepositoryImpl(@Qualifier("template-string-string") ReactiveRedisTemplate<String, String> reactiveRedisTemplate) {
-        this.hashOps = reactiveRedisTemplate.opsForHash();
+    public MetadataRepositoryImpl(RedisTemplate<String, String> template) {
+        this.template = template;
+        this.hashOps = template.opsForHash();
     }
 
     @Override
-    public Mono<String> save(MetadataIdentifier id, String entity) {
-        return this.hashOps.put(idToKey(id.getServiceId()), id.getKey(), entity)
-                .map(ignored -> entity);
+    public void save(MetadataIdentifier identifier, String value) {
+        checkNotNull("identifier", identifier);
+        this.hashOps.put(idToKey(identifier.getServiceId()), identifier.getKey(), value);
     }
 
     @Override
-    public Flux<String> saveAll(String serviceId, Map<String, String> entries) {
-        return this.hashOps.putAll(idToKey(serviceId), entries)
-                .thenMany(Flux.fromIterable(entries.values()));
+    public void save(IdentifiedMetadataEntry entry) {
+        checkNotNull("entry", entry);
+        this.save(entry.getKey(), entry.getValue());
     }
 
     @Override
-    public Flux<String> saveAll(String serviceId, Collection<MetadataEntry> entries) {
-        return this.saveAll(
-                serviceId,
-                Map.ofEntries(entries.toArray(MetadataEntry[]::new)));
+    public void save(String id, MetadataEntry entry) {
+        checkNotNull("entry", entry);
+        this.hashOps.put(idToKey(id), entry.getKey(), entry.getValue());
     }
 
     @Override
-    public Flux<String> saveAll(Publisher<Pair<MetadataIdentifier, String>> entityStream) {
-        return Flux.from(entityStream).flatMap(pair -> this.save(pair.getFirst(), pair.getSecond()));
+    public void saveAll(String id, Iterable<MetadataEntry> entries) {
+        this.hashOps.putAll(
+                idToKey(checkNotNull("id", id)),
+                ImmutableMap.copyOf(checkNotNull("entries", entries))
+        );
     }
 
     @Override
-    public Mono<String> findByKey(MetadataIdentifier metadataIdentifier) {
-        return this.hashOps.get(idToKey(metadataIdentifier.getServiceId()), metadataIdentifier.getKey());
+    public Optional<String> findById(MetadataIdentifier identifier) {
+        checkNotNull("identifier", identifier);
+        return Optional.ofNullable(
+                this.hashOps.get(
+                        idToKey(identifier.getServiceId()),
+                        identifier.getKey()
+                )
+        );
     }
 
     @Override
-    public Mono<String> findByKey(Publisher<MetadataIdentifier> id) {
-        return Mono.from(id).flatMap(this::findByKey);
+    public boolean existsById(MetadataIdentifier identifier) {
+        checkNotNull("identifier", identifier);
+        return this.hashOps.hasKey(idToKey(identifier.getServiceId()), identifier.getKey());
     }
 
     @Override
-    public Mono<Boolean> existsByKey(MetadataIdentifier metadataIdentifier) {
-        return this.hashOps.hasKey(idToKey(metadataIdentifier.getServiceId()), metadataIdentifier.getServiceId());
+    public Iterable<MetadataEntry> findAll(String id) {
+        return this.hashOps.entries(
+                idToKey(checkNotNull("id", id)))
+                .entrySet()
+                .stream()
+                .map(entry -> new MetadataEntry(entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     @Override
-    public Mono<Boolean> existsByKey(Publisher<MetadataIdentifier> id) {
-        return Mono.from(id).flatMap(this::existsByKey);
+    public Iterable<IdentifiedMetadataEntry> findAllById(Collection<MetadataIdentifier> metadataIdentifiers) {
+        return checkNotNull("metadataIdentifiers", metadataIdentifiers)
+                .stream()
+                .map(identifier -> {
+                    String value = String.valueOf(this.findById(identifier));
+
+                    return new IdentifiedMetadataEntry(identifier, value);
+                })
+                .toList();
     }
 
     @Override
-    public Mono<List<MetadataEntry>> findAll(String serviceId) {
-        return this.hashOps.entries(idToKey(serviceId))
-                .collectList()
-                .map(list -> list.stream().map(entry -> new MetadataEntry(entry.getKey(), entry.getValue())).toList());
+    public Iterable<MetadataEntry> findAllById(String id, List<String> keys) {
+        checkNotNull("id", id);
+        checkNotNull("keys", keys);
+        List<String> values = this.hashOps.multiGet(idToKey(id), keys);
+
+        checkCondition("values.size() == keys.size()", values.size() == keys.size());
+
+        List<MetadataEntry> entries = new LinkedList<>();
+        for(int i = 0; i < values.size(); i++) {
+          String key = keys.get(i);
+          String value = values.get(i);
+
+          entries.add(new MetadataEntry(key, value));
+        }
+
+        return entries;
     }
 
     @Override
-    public Mono<List<MetadataEntry>> findAll(Publisher<String> serviceId) {
-        return Mono.from(serviceId)
-                .flatMap(this::findAll);
+    public long count(String id) {
+        return this.hashOps.size(idToKey(checkNotNull("id", id)));
     }
 
     @Override
-    public Flux<MetadataEntry> findAllByKey(String serviceId, Iterable<String> keys) {
-        return this.hashOps.multiGet(idToKey(serviceId), ImmutableList.copyOf(keys))
-                .flatMapMany(valueList -> {
-                    List<MetadataEntry> entries = new LinkedList<>();
-                    List<String> keyList = ImmutableList.copyOf(keys);
-
-                    if (keyList.size() != valueList.size())
-                        return Mono.error(new IllegalStateException("Key list and value list are not equal size"));
-
-                    for (int i = 0; i < keyList.size(); i++) {
-                        MetadataEntry entry = new MetadataEntry(
-                                keyList.get(i),
-                                valueList.get(i));
-                        entries.add(entry);
-                    }
-
-                    return Flux.fromIterable(entries);
-                });
+    public void deleteById(MetadataIdentifier identifier) {
+        checkNotNull("identifier", identifier);
+        this.hashOps.delete(idToKey(identifier.getServiceId()), identifier.getKey());
     }
 
     @Override
-    public Flux<MetadataEntry> findAllByKey(Publisher<MetadataIdentifier> idStream) {
-        return Flux.from(idStream)
-                .flatMap(identifier ->
-                        this.findByKey(identifier)
-                                .map(value -> new MetadataEntry(identifier.getKey(), value)));
+    public void deleteAllById(Iterable<? extends MetadataIdentifier> metadataIdentifiers) {
+        checkNotNull("metadataIdentifiers", metadataIdentifiers).forEach(this::deleteById);
     }
 
     @Override
-    public Mono<Long> count(String serviceId) {
-        return this.hashOps.size(idToKey(serviceId));
+    public void deleteAllById(String id, Collection<String> keys) {
+        checkNotNull("id", id);
+        checkNotNull("keys", keys);
+        this.hashOps.delete(idToKey(id), keys.toArray());
     }
 
     @Override
-    public Mono<Long> count(Publisher<String> serviceId) {
-        return Mono.from(serviceId)
-                .flatMap(this::count);
-    }
-
-    @Override
-    public Mono<Void> deleteByKey(MetadataIdentifier metadataIdentifier) {
-        return this.hashOps.remove(idToKey(metadataIdentifier.getServiceId()), metadataIdentifier.getKey())
-                .then();
-    }
-
-    @Override
-    public Mono<Void> deleteByKey(Publisher<MetadataIdentifier> id) {
-        return Mono.from(id)
-                .flatMap(this::deleteByKey);
-    }
-
-    @Override
-    public Mono<Void> deleteAllByKey(String serviceId, Iterable<? extends String> metadataIdentifiers) {
-        return this.hashOps.remove(
-                idToKey(serviceId),
-                StreamSupport.stream(metadataIdentifiers.spliterator(), false)
-                        .toArray()
-        ).then();
-    }
-
-    @Override
-    public Mono<Void> deleteAll(String serviceId) {
-        return this.hashOps.delete(idToKey(serviceId))
-                .then();
-    }
-
-    @Override
-    public Mono<Void> deleteAll(Publisher<String> serviceId) {
-        return Mono.from(serviceId)
-                .flatMap(this::deleteAll);
+    public void deleteAll(String id) {
+        this.template.delete(id);
     }
 
     private static final String METADATA_PREFIX = "metadata:";
