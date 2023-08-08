@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface MetadataRepository extends Repository<String, MetadataIdentifier> {
@@ -95,18 +96,18 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
     /**
      * Returns all instances of the type.
      *
-     * @return {@link Flux} emitting all entities.
      * @param serviceId must not be {@literal null}.
+     * @return {@link Flux} emitting all entities.
      */
-    Flux<MetadataEntry> findAll(String serviceId);
+    Mono<List<MetadataEntry>> findAll(String serviceId);
 
     /**
      * Returns all instances of the type.
      *
-     * @return {@link Flux} emitting all entities.
      * @param serviceId must not be {@literal null}.
+     * @return {@link Flux} emitting all entities.
      */
-    Flux<MetadataEntry> findAll(Publisher<String> serviceId);
+    Mono<List<MetadataEntry>> findAll(Publisher<String> serviceId);
 
     /**
      * Returns all instances of the type {@code T} with the given IDs.

@@ -9,10 +9,4 @@ public interface Service {
 
     ServiceState getState();
 
-    String findMetadata(String key);
-
-    Map<String, String> findMultiMetadata(Collection<String> keys);
-
-    Map<String, String> findAllMetadata();
-
 }

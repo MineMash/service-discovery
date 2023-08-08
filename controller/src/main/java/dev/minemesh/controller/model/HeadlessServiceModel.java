@@ -50,21 +50,6 @@ public class HeadlessServiceModel implements Service {
         this.metadata = metadata;
     }
 
-    @Override
-    public String findMetadata(String key) {
-        throw new UnsupportedOperationException("Not supported on controller. Use MetadataRepository");
-    }
-
-    @Override
-    public Map<String, String> findMultiMetadata(Collection<String> keys) {
-        throw new UnsupportedOperationException("Not supported on controller. Use MetadataRepository");
-    }
-
-    @Override
-    public Map<String, String> findAllMetadata() {
-        throw new UnsupportedOperationException("Not supported on controller. Use MetadataRepository");
-    }
-
     public ServiceModel toServiceModel() {
         return new ServiceModel(
                 null,

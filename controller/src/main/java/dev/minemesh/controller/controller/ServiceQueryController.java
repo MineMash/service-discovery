@@ -47,7 +47,7 @@ public class ServiceQueryController {
     }
 
     @SchemaMapping
-    public Flux<MetadataEntry> findAllMetadata(ServiceModel service) {
+    public Mono<List<MetadataEntry>> findAllMetadata(ServiceModel service) {
         return this.metadataRepository.findAll(service.getId());
     }
 

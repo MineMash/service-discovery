@@ -31,8 +31,8 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Flux<String> saveAll(String serivceId, Map<String, String> entries) {
-        return this.hashOps.putAll(serivceId, entries)
+    public Flux<String> saveAll(String serviceId, Map<String, String> entries) {
+        return this.hashOps.putAll(idToKey(serviceId), entries)
                 .thenMany(Flux.fromIterable(entries.values()));
     }
 
@@ -69,14 +69,15 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
-    public Flux<MetadataEntry> findAll(String serviceId) {
+    public Mono<List<MetadataEntry>> findAll(String serviceId) {
         return this.hashOps.entries(idToKey(serviceId))
-                .map(entry -> new MetadataEntry(entry.getKey(), entry.getValue()));
+                .collectList()
+                .map(list -> list.stream().map(entry -> new MetadataEntry(entry.getKey(), entry.getValue())).toList());
     }
 
     @Override
-    public Flux<MetadataEntry> findAll(Publisher<String> serviceId) {
-        return Flux.from(serviceId)
+    public Mono<List<MetadataEntry>> findAll(Publisher<String> serviceId) {
+        return Mono.from(serviceId)
                 .flatMap(this::findAll);
     }
 
