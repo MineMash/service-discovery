@@ -1,6 +1,6 @@
 package dev.minemesh.controller.repository;
 
-import dev.minemesh.controller.model.MetadataIdentifier;
+import dev.minemesh.controller.model.metadata.MetadataIdentifier;
 import dev.minemesh.controller.model.metadata.MetadataEntry;
 import org.reactivestreams.Publisher;
 import org.springframework.data.repository.Repository;

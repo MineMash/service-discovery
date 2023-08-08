@@ -1,4 +1,4 @@
-package dev.minemesh.controller.model;
+package dev.minemesh.controller.model.metadata;
 
 public class MetadataIdentifier {
 

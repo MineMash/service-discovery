@@ -4,6 +4,9 @@ import dev.minemesh.servicediscovery.common.Network;
 import dev.minemesh.servicediscovery.common.RegisteredService;
 import dev.minemesh.servicediscovery.common.ServiceState;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 public class ServiceModel implements RegisteredService {
@@ -45,5 +48,20 @@ public class ServiceModel implements RegisteredService {
 
     public void setState(ServiceState state) {
         this.state = state;
+    }
+
+    @Override
+    public String findMetadata(String key) {
+        throw new UnsupportedOperationException("Not supported on controller. Use MetadataRepository");
+    }
+
+    @Override
+    public Map<String, String> findMultiMetadata(Collection<String> keys) {
+        throw new UnsupportedOperationException("Not supported on controller. Use MetadataRepository");
+    }
+
+    @Override
+    public Map<String, String> findAllMetadata() {
+        throw new UnsupportedOperationException("Not supported on controller. Use MetadataRepository");
     }
 }

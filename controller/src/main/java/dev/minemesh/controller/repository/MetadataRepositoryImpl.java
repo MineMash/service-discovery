@@ -1,7 +1,7 @@
 package dev.minemesh.controller.repository;
 
-import dev.minemesh.controller.model.MetadataIdentifier;
 import dev.minemesh.controller.model.metadata.MetadataEntry;
+import dev.minemesh.controller.model.metadata.MetadataIdentifier;
 import graphql.com.google.common.collect.ImmutableList;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Qualifier;
