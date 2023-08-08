@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -16,28 +18,33 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfiguration {
 
     @Bean("template-service-model")
-    public ReactiveRedisTemplate<String, ServiceModel> reactiveRedisTemplateServiceModel(ReactiveRedisConnectionFactory connectionFactory) {
-        StringRedisSerializer keySerializer = new StringRedisSerializer();
-        Jackson2JsonRedisSerializer<ServiceModel> valueSerializer = new Jackson2JsonRedisSerializer<>(ServiceModel.class);
-
-        RedisSerializationContext.RedisSerializationContextBuilder<String, ServiceModel> builder = RedisSerializationContext.newSerializationContext(keySerializer);
-        RedisSerializationContext<String, ServiceModel> context = builder.value(valueSerializer).build();
-
-        return new ReactiveRedisTemplate<>(connectionFactory, context);
-    }
-
-    @Bean("template-string-string")
-    public ReactiveRedisTemplate<String, String> reactiveRedisTemplateString(ReactiveRedisConnectionFactory connectionFactory) {
-        return new ReactiveRedisTemplate<>(
+    public RedisTemplate<String, ServiceModel> redisTemplateServiceModel(RedisConnectionFactory connectionFactory) {
+        return createRedisTemplate(
                 connectionFactory,
-                RedisSerializationContext.fromSerializer(RedisSerializer.string())
+                RedisSerializer.string(),
+                new Jackson2JsonRedisSerializer<>(ServiceModel.class)
         );
     }
 
-    @Bean
-    public ReactiveValueOperations<String, ServiceModel> reactiveValueOperations(
-            @Qualifier("template-service-model") ReactiveRedisTemplate<String, ServiceModel> reactiveRedisTemplate) {
-        return reactiveRedisTemplate.opsForValue();
+    @Bean("template-string")
+    public RedisTemplate<String, String> redisTemplateString(RedisConnectionFactory connectionFactory) {
+        return createRedisTemplate(
+                connectionFactory,
+                RedisSerializer.string(),
+                RedisSerializer.string()
+        );
+    }
+
+    private static <K, V> RedisTemplate<K, V> createRedisTemplate(RedisConnectionFactory connectionFactory, RedisSerializer<K> keySerializer, RedisSerializer<V> valueSerializer) {
+        RedisTemplate<K, V> template = new RedisTemplate<>();
+
+        template.setConnectionFactory(connectionFactory);
+        template.setEnableTransactionSupport(true);
+
+        template.setKeySerializer(keySerializer);
+        template.setValueSerializer(valueSerializer);
+
+        return template;
     }
 
 }

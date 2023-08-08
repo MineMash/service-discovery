@@ -15,12 +15,6 @@ public class RedisScriptConfiguration {
         return RedisScript.of(scriptSource, Short.class);
     }
 
-    @Bean("script-unregister-service")
-    public RedisScript<Boolean> unregisterServiceScript() {
-        Resource scriptSource = new ClassPathResource(getScriptPath("unregister_service"));
-        return RedisScript.of(scriptSource, Boolean.class);
-    }
-
     private static final String SCRIPTS_TEMPLATE = "scripts/%s.lua";
 
     private static String getScriptPath(String scriptName) {
