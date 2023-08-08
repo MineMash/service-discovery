@@ -4,6 +4,9 @@ import dev.minemesh.servicediscovery.common.Network;
 import dev.minemesh.servicediscovery.common.RegisteredService;
 import dev.minemesh.servicediscovery.common.ServiceState;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 public class ServiceModel implements RegisteredService {
@@ -14,7 +17,7 @@ public class ServiceModel implements RegisteredService {
 
     public ServiceModel() {}
 
-    public ServiceModel(String id, NetworkModel network, ServiceState state, UUID metadataReference) {
+    public ServiceModel(String id, NetworkModel network, ServiceState state) {
         this.id = id;
         this.network = network;
         this.state = state;
@@ -46,4 +49,5 @@ public class ServiceModel implements RegisteredService {
     public void setState(ServiceState state) {
         this.state = state;
     }
+
 }

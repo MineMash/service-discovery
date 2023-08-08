@@ -2,9 +2,14 @@ type Service {
     id: ID!
     state: ServiceState!
     network: Network!
+
+    findMetadata(key: String!): String
+    findMultiMetadata(keys: [String!]!): [MetadataEntry!]!
+    findAllMetadata: [MetadataEntry!]!
 }
 
 input HeadlessService {
     state: ServiceState
+    metadata: [MetadataEntryInput!]
     network: NetworkInput!
 }

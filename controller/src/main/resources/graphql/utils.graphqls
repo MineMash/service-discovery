@@ -21,3 +21,13 @@ input NetworkInput {
     runningPort: Int!
     healthCheckPort: Int!
 }
+
+type MetadataEntry {
+    key: String!
+    value: String
+}
+
+input MetadataEntryInput {
+    key: String!
+    value: String
+}
