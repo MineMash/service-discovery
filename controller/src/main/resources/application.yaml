@@ -12,6 +12,8 @@ spring:
   cache:
     redis:
       key-prefix: service-discovery
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:"loalhost:"}
 server:
   port: 8080
   address: 0.0.0.0
