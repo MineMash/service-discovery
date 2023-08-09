@@ -20,17 +20,17 @@ public class MetadataController {
         this.metadataService = metadataService;
     }
 
-    @SchemaMapping
+    @SchemaMapping(typeName = "Service")
     public Optional<String> findMetadata(ServiceModel service, @Argument String key) {
         return this.metadataService.findById(new MetadataIdentifier(service.getId(), key));
     }
 
-    @SchemaMapping
+    @SchemaMapping(typeName = "Service")
     public List<MetadataEntry> findMultiMetadata(ServiceModel service, @Argument List<String> keys) {
         return this.metadataService.findAllById(service.getId(), keys);
     }
 
-    @SchemaMapping
+    @SchemaMapping(typeName = "Service")
     public List<MetadataEntry> findAllMetadata(ServiceModel service) {
         return this.metadataService.findAll(service.getId());
     }
