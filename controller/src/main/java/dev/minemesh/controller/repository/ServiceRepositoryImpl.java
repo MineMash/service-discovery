@@ -2,9 +2,9 @@ package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.util.StringUtil;
+import dev.minemesh.servicediscovery.common.ServiceState;
 import graphql.com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -21,31 +21,35 @@ public class ServiceRepositoryImpl implements ServiceRepository {
 
     private final RedisTemplate<String, ServiceModel> template;
     private final ValueOperations<String, ServiceModel> valueOperations;
-    private final RedisScript<Short> counterScript;
+    private final RedisTemplate<String, String> stringRedisTemplate;
+    private final RedisScript<String> counterScript;
 
     public ServiceRepositoryImpl(
-            @Qualifier("script-get-counter") RedisScript<Short> counterScript,
-            @Qualifier("template-service-model") RedisTemplate<String, ServiceModel> reactiveRedisTemplate
+            @Qualifier("script-id-parameter") RedisScript<String> counterScript,
+            @Qualifier("template-service-model") RedisTemplate<String, ServiceModel> serviceRedisTemplate,
+            @Qualifier("template-string") RedisTemplate<String, String> stringRedisTemplate
     ) {
         this.counterScript = counterScript;
-        this.template = reactiveRedisTemplate;
-        this.valueOperations = reactiveRedisTemplate.opsForValue();
+        this.template = serviceRedisTemplate;
+        this.valueOperations = serviceRedisTemplate.opsForValue();
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     @Override
     public <S extends ServiceModel> S save(S entity) {
+        if (entity.getState() == null) {
+            entity.setState(ServiceState.CREATED);
+        }
+
         String id = entity.getId();
         if (id != null) {
             this.valueOperations.set(idToKey(id), entity);
             return entity;
         }
 
-        this.template.multi();
-        this.template.execute((RedisCallback<Long>) connection -> connection.serverCommands().time());
-        this.template.execute(this.counterScript, List.of());
-        List<Object> result = this.template.exec();
+        String[] parameters = this.stringRedisTemplate.execute(this.counterScript, List.of()).split("[;.]");
 
-        String generatedId = StringUtil.generateIdString((Long) result.get(0), (Short) result.get(1));
+        String generatedId = StringUtil.generateIdString(Long.parseLong(parameters[1]), Short.parseShort(parameters[0]));
         entity.setId(generatedId);
 
         this.valueOperations.set(idToKey(generatedId), entity);

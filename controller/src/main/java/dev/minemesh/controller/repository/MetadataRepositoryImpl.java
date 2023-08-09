@@ -4,6 +4,7 @@ import dev.minemesh.controller.model.metadata.IdentifiedMetadataEntry;
 import dev.minemesh.controller.model.metadata.MetadataEntry;
 import dev.minemesh.controller.model.metadata.MetadataIdentifier;
 import graphql.com.google.common.collect.ImmutableMap;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -22,7 +23,7 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     private final RedisTemplate<String, String> template;
     private final HashOperations<String, String, String> hashOps;
 
-    public MetadataRepositoryImpl(RedisTemplate<String, String> template) {
+    public MetadataRepositoryImpl(@Qualifier("template-string") RedisTemplate<String, String> template) {
         this.template = template;
         this.hashOps = template.opsForHash();
     }

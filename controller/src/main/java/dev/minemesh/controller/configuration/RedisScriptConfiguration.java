@@ -9,10 +9,10 @@ import org.springframework.data.redis.core.script.RedisScript;
 @Configuration
 public class RedisScriptConfiguration {
 
-    @Bean("script-get-counter")
-    public RedisScript<Short> registerServiceScript() {
-        Resource scriptSource = new ClassPathResource(getScriptPath("get_counter"));
-        return RedisScript.of(scriptSource, Short.class);
+    @Bean("script-id-parameter")
+    public RedisScript<String> idParameterScript() {
+        Resource scriptSource = new ClassPathResource(getScriptPath("get_id_parameter"));
+        return RedisScript.of(scriptSource, String.class);
     }
 
     private static final String SCRIPTS_TEMPLATE = "scripts/%s.lua";
