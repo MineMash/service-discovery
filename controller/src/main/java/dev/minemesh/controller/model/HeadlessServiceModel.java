@@ -1,13 +1,11 @@
 package dev.minemesh.controller.model;
 
 import dev.minemesh.controller.model.metadata.MetadataEntry;
-import dev.minemesh.servicediscovery.common.Network;
-import dev.minemesh.servicediscovery.common.Service;
-import dev.minemesh.servicediscovery.common.ServiceState;
+import dev.minemesh.servicediscovery.common.model.Network;
+import dev.minemesh.servicediscovery.common.model.Service;
+import dev.minemesh.servicediscovery.common.model.ServiceState;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class HeadlessServiceModel implements Service {
 

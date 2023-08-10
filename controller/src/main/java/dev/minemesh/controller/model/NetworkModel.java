@@ -1,6 +1,6 @@
 package dev.minemesh.controller.model;
 
-import dev.minemesh.servicediscovery.common.Network;
+import dev.minemesh.servicediscovery.common.model.Network;
 
 public class NetworkModel implements Network {
 

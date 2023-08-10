@@ -1,4 +1,4 @@
-package dev.minemesh.servicediscovery.common;
+package dev.minemesh.servicediscovery.common.model;
 
 import java.util.Collection;
 import java.util.Map;

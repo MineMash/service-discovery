@@ -1,13 +1,8 @@
 package dev.minemesh.controller.model;
 
-import dev.minemesh.servicediscovery.common.Network;
-import dev.minemesh.servicediscovery.common.RegisteredService;
-import dev.minemesh.servicediscovery.common.ServiceState;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
+import dev.minemesh.servicediscovery.common.model.Network;
+import dev.minemesh.servicediscovery.common.model.RegisteredService;
+import dev.minemesh.servicediscovery.common.model.ServiceState;
 
 public class ServiceModel implements RegisteredService {
 

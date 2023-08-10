@@ -1,5 +1,7 @@
 package dev.minemesh.controller.configuration;
 
+import dev.minemesh.controller.serliazier.ServiceModelSerializer;
+import dev.minemesh.servicediscovery.common.model.RegisteredService;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,11 +22,11 @@ public class KafkaProducerConfiguration {
     private String bootstrapAddress;
 
     @Bean
-    public ProducerFactory<String, String> producerFactory() {
+    public ProducerFactory<String, RegisteredService> producerFactory() {
         Map<String, Object> configProps = Map.of(
                 BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress,
                 KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-                VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class
+                VALUE_SERIALIZER_CLASS_CONFIG, ServiceModelSerializer.class
         );
 
         return new DefaultKafkaProducerFactory<>(configProps);

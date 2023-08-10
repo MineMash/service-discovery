@@ -3,8 +3,8 @@ package dev.minemesh.controller.service;
 import dev.minemesh.controller.model.HeadlessServiceModel;
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.model.metadata.MetadataEntry;
-import dev.minemesh.servicediscovery.common.RegisteredService;
-import dev.minemesh.servicediscovery.common.ServiceState;
+import dev.minemesh.servicediscovery.common.model.RegisteredService;
+import dev.minemesh.servicediscovery.common.model.ServiceState;
 
 import java.util.List;
 import java.util.Optional;

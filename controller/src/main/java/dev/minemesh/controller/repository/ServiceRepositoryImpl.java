@@ -2,7 +2,7 @@ package dev.minemesh.controller.repository;
 
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.util.StringUtil;
-import dev.minemesh.servicediscovery.common.ServiceState;
+import dev.minemesh.servicediscovery.common.model.ServiceState;
 import graphql.com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;

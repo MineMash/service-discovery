@@ -5,8 +5,8 @@ import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.model.metadata.MetadataEntry;
 import dev.minemesh.controller.repository.MetadataRepository;
 import dev.minemesh.controller.repository.ServiceRepository;
-import dev.minemesh.servicediscovery.common.RegisteredService;
-import dev.minemesh.servicediscovery.common.ServiceState;
+import dev.minemesh.servicediscovery.common.model.RegisteredService;
+import dev.minemesh.servicediscovery.common.model.ServiceState;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
