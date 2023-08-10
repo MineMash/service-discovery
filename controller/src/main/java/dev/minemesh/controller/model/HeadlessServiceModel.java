@@ -5,6 +5,8 @@ import dev.minemesh.servicediscovery.common.model.Network;
 import dev.minemesh.servicediscovery.common.model.Service;
 import dev.minemesh.servicediscovery.common.model.ServiceState;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.List;
 
 public class HeadlessServiceModel implements Service {
@@ -56,4 +58,10 @@ public class HeadlessServiceModel implements Service {
         );
     }
 
+    @Override
+    public void deserialize(ObjectInputStream input) throws IOException {
+        this.network = new NetworkModel();
+        this.network.deserialize(input);
+        this.state = ServiceState.deserializeState(input).orElseThrow(() -> new IOException("Could not deserialize ServiceState"));
+    }
 }

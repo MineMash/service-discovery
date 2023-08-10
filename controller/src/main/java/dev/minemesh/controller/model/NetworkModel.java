@@ -2,6 +2,9 @@ package dev.minemesh.controller.model;
 
 import dev.minemesh.servicediscovery.common.model.Network;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
 public class NetworkModel implements Network {
 
     private String address;
@@ -42,5 +45,12 @@ public class NetworkModel implements Network {
 
     public void setHealthCheckPort(int healthCheckPort) {
         this.healthCheckPort = healthCheckPort;
+    }
+
+    @Override
+    public void deserialize(ObjectInputStream input) throws IOException {
+        this.address = input.readUTF();
+        this.runningPort = input.readInt();
+        this.healthCheckPort = input.readInt();
     }
 }
