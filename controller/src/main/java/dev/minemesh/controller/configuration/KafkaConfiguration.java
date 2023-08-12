@@ -24,22 +24,22 @@ public class KafkaConfiguration {
 
     @Bean
     public NewTopic registrationTopic() {
-        return new NewTopic("service-discovery:service:register", 1, (short) 1);
+        return new NewTopic("service-discovery.service.register", 1, (short) 1);
     }
 
     @Bean
     public NewTopic unregistrationTopic() {
-        return new NewTopic("service-discovery:service:unregister", 1, (short) 1);
+        return new NewTopic("service-discovery.service.unregister", 1, (short) 1);
     }
 
     @Bean
     public NewTopic metadataUpdateTopic() {
-        return new NewTopic("service-discovery:service:metadata-update", 1, (short) 1);
+        return new NewTopic("service-discovery.service.metadata-update", 1, (short) 1);
     }
 
     @Bean
     public NewTopic stateUpdateTopic() {
-        return new NewTopic("service-discovery:service:state-update", 1, (short) 1);
+        return new NewTopic("service-discovery.service.state-update", 1, (short) 1);
     }
 
 }
