@@ -15,4 +15,6 @@ public interface MetadataService {
 
     List<MetadataEntry> findAll(String id);
 
+    boolean update(String id, MetadataEntry entry);
+
 }

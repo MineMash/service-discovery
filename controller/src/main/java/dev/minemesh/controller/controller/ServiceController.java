@@ -44,13 +44,8 @@ public class ServiceController {
     }
 
     @MutationMapping
-    public Optional<RegisteredService> updateServiceState(@Argument String id, @Argument ServiceState state) {
+    public boolean updateServiceState(@Argument String id, @Argument ServiceState state) {
         return this.serviceService.updateServiceState(id, state);
-    }
-
-    @MutationMapping
-    public Optional<RegisteredService> updateServiceMetadata(@Argument String id, @Argument MetadataEntry entry) {
-        return this.serviceService.updateServiceMetadata(id, entry);
     }
 
 }

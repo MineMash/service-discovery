@@ -72,6 +72,12 @@ public class MetadataRepositoryImpl implements MetadataRepository {
     }
 
     @Override
+    public boolean exists(String id) {
+        checkNotNull("id", id);
+        return this.template.hasKey(idToKey(id));
+    }
+
+    @Override
     public List<MetadataEntry> findAll(String id) {
         return this.hashOps.entries(
                 idToKey(checkNotNull("id", id)))

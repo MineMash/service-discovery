@@ -26,7 +26,6 @@ public interface ServiceRepository extends Repository<ServiceModel, String> {
      * as the {@literal Iterable} passed as an argument.
      * @throws IllegalArgumentException          in case the given {@link Iterable entities} or one of its entities is
      *                                           {@literal null}.
-     * @throws OptimisticLockingFailureException when at least one entity uses optimistic locking and has a version
      */
     <S extends ServiceModel> Iterable<S> saveAll(Iterable<S> entities);
 

@@ -12,6 +12,9 @@ type Mutation {
     registerService(headless: HeadlessService!): Service!
     unregisterService(id: ID!): Boolean!
 
-    updateServiceState(id: ID!, state: ServiceState): Service
-    updateServiceMetadata(id: ID!, entry: MetadataEntryInput!): Service
+    # returns weather the state was updated or there is not entry with the given id
+    updateServiceState(id: ID!, state: ServiceState): Boolean!
+
+    # returns weather the metadata was updated or there is not entry with the given id
+    updateServiceMetadata(id: ID!, entry: MetadataEntryInput!): Boolean!
 }

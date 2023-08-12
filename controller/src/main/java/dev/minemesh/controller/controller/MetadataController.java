@@ -5,6 +5,7 @@ import dev.minemesh.controller.model.metadata.MetadataEntry;
 import dev.minemesh.controller.model.metadata.MetadataIdentifier;
 import dev.minemesh.controller.service.MetadataService;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
@@ -33,6 +34,11 @@ public class MetadataController {
     @SchemaMapping(typeName = "Service")
     public List<MetadataEntry> findAllMetadata(ServiceModel service) {
         return this.metadataService.findAll(service.getId());
+    }
+
+    @MutationMapping
+    public boolean updateServiceMetadata(@Argument String id, @Argument MetadataEntry entry) {
+        return this.metadataService.update(id, entry);
     }
 
 }

@@ -65,6 +65,15 @@ public interface MetadataRepository extends Repository<String, MetadataIdentifie
     boolean existsById(MetadataIdentifier identifier);
 
     /**
+     * Returns weather a metadata hash with the given id exists.
+     *
+     * @param id must not be {@literal null}.
+     * @return {@literal true} if the metadata hash exists.
+     * @throws IllegalArgumentException if {@literal identifier} is {@literal null}.
+     */
+    boolean exists(String id);
+
+    /**
      * Returns all instances of the type.
      *
      * @param id must not be {@literal null}.

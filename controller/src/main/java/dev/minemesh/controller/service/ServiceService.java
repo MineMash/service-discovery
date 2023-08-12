@@ -15,9 +15,7 @@ public interface ServiceService {
 
     boolean unregisterService(String id);
 
-    Optional<RegisteredService> updateServiceState(String id, ServiceState state);
-
-    Optional<RegisteredService> updateServiceMetadata(String id, MetadataEntry entry);
+    boolean updateServiceState(String id, ServiceState state);
 
     Optional<ServiceModel> findById(String id);
 
