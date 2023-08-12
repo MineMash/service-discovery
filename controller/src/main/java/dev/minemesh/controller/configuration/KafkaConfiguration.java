@@ -12,6 +12,11 @@ import java.util.Map;
 @Configuration
 public class KafkaConfiguration {
 
+    public static final String REGISTRATION_TOPIC = "service-discovery.service.register";
+    public static final String UNREGISTRATION_TOPIC = "service-discovery.service.unregister";
+    public static final String METADATA_UPDATE_TOPIC = "service-discovery.service.metadata-update";
+    public static final String STATE_UPDATE_TOPIC = "service-discovery.service.state-update";
+
     @Value(value = "${spring.kafka.bootstrap-servers}")
     private String bootstrapAddress;
 
@@ -24,7 +29,7 @@ public class KafkaConfiguration {
 
     @Bean
     public NewTopic registrationTopic() {
-        return new NewTopic("service-discovery.service.register", 1, (short) 1);
+        return new NewTopic(REGISTRATION_TOPIC, 1, (short) 1);
     }
 
     @Bean
