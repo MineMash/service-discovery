@@ -1,7 +1,4 @@
-package dev.minemesh.servicediscovery.common;
-
-import dev.minemesh.servicediscovery.common.event.KafkaEvent;
-import dev.minemesh.servicediscovery.common.event.KafkaEventSerializer;
+package dev.minemesh.servicediscovery.common.event;
 
 import java.io.*;
 import java.util.*;
@@ -9,14 +6,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static dev.minemesh.servicediscovery.common.util.Precheck.checkNotNull;
 
-public final class KafkaEventManager {
+public final class KafkaEventSerializationManager {
 
     private static final Random RANDOM = ThreadLocalRandom.current();
 
     private final List<KafkaEventSerializer> serializers;
     private final SerializerSelectionStrategy strategy;
 
-    private KafkaEventManager(List<KafkaEventSerializer> serializers, SerializerSelectionStrategy strategy) {
+    private KafkaEventSerializationManager(List<KafkaEventSerializer> serializers, SerializerSelectionStrategy strategy) {
         this.serializers = serializers;
         this.strategy = strategy;
     }
@@ -132,8 +129,8 @@ public final class KafkaEventManager {
             return this;
         }
 
-        public KafkaEventManager createKafkaEventManager() {
-            return new KafkaEventManager(this.serializers, this.strategy);
+        public KafkaEventSerializationManager createKafkaEventManager() {
+            return new KafkaEventSerializationManager(this.serializers, this.strategy);
         }
     }
 }
