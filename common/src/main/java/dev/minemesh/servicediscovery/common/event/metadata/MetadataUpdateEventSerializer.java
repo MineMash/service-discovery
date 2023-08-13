@@ -1,19 +1,28 @@
 package dev.minemesh.servicediscovery.common.event.metadata;
 
+import dev.minemesh.servicediscovery.common.event.KafkaEvent;
 import dev.minemesh.servicediscovery.common.event.KafkaEventSerializer;
 
 import java.io.*;
-import java.util.Optional;
 
-public class MetadataUpdateEventSerializer implements KafkaEventSerializer<MetadataUpdateEvent> {
+public class MetadataUpdateEventSerializer implements KafkaEventSerializer {
+
+    public static final int SERIALIZER_ID = 0x101;
 
     @Override
-    public int getEventId() {
-        return MetadataUpdateEvent.EVENT_ID;
+    public int getSerializerId() {
+        return SERIALIZER_ID;
     }
 
     @Override
-    public byte[] serialize(MetadataUpdateEvent event) throws IOException {
+    public boolean accepts(KafkaEvent event) {
+        return event instanceof MetadataUpdateEvent;
+    }
+
+    @Override
+    public byte[] serialize(KafkaEvent kafkaEvent) throws IOException {
+        MetadataUpdateEvent event = (MetadataUpdateEvent) kafkaEvent;
+
         try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream()) {
             ObjectOutputStream objectOut = new ObjectOutputStream(bytesOut);
 
@@ -27,7 +36,7 @@ public class MetadataUpdateEventSerializer implements KafkaEventSerializer<Metad
     }
 
     @Override
-    public Optional<MetadataUpdateEvent> deserialize(byte[] bytes) {
+    public MetadataUpdateEvent deserialize(byte[] bytes) throws IOException{
         try (ByteArrayInputStream bytesOut = new ByteArrayInputStream(bytes)) {
             ObjectInputStream objectOut = new ObjectInputStream(bytesOut);
 
@@ -36,9 +45,7 @@ public class MetadataUpdateEventSerializer implements KafkaEventSerializer<Metad
             String oldValue = objectOut.readUTF();
             String newValue = objectOut.readUTF();
 
-            return Optional.of(new MetadataUpdateEvent(id, key, oldValue, newValue));
-        } catch (IOException e) {
-            return Optional.empty();
+            return new MetadataUpdateEvent(id, key, oldValue, newValue);
         }
     }
 }

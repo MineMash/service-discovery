@@ -4,8 +4,6 @@ import dev.minemesh.servicediscovery.common.event.KafkaEvent;
 
 public class MetadataUpdateEvent implements KafkaEvent {
 
-    public static final int EVENT_ID = 0x101;
-
     private final String id;
     private final String key;
 
@@ -33,10 +31,5 @@ public class MetadataUpdateEvent implements KafkaEvent {
 
     public String getNewValue() {
         return this.newValue;
-    }
-
-    @Override
-    public int getEventId() {
-        return EVENT_ID;
     }
 }

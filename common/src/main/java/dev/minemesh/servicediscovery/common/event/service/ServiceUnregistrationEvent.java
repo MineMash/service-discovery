@@ -4,17 +4,10 @@ import dev.minemesh.servicediscovery.common.model.RegisteredService;
 
 public class ServiceUnregistrationEvent implements ServiceEvent {
 
-    public static final int EVENT_ID = 0x002;
-
     private final RegisteredService service;
 
     public ServiceUnregistrationEvent(RegisteredService service) {
         this.service = service;
-    }
-
-    @Override
-    public int getEventId() {
-        return EVENT_ID;
     }
 
     @Override
