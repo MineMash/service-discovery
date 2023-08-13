@@ -1,14 +1,13 @@
 package dev.minemesh.servicediscovery.common.event;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public interface KafkaEventSerializer<E extends KafkaEvent> {
 
     int getEventId();
 
-    boolean accept(KafkaEvent event);
-
-    byte[] serialize(E event);
+    byte[] serialize(E event) throws IOException;
 
     Optional<E> deserialize(byte[] bytes);
 
