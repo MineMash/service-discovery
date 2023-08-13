@@ -4,7 +4,6 @@ import dev.minemesh.servicediscovery.common.event.KafkaEvent;
 import dev.minemesh.servicediscovery.common.model.RegisteredService;
 
 import java.io.IOException;
-import java.util.Optional;
 
 public non-sealed class ServiceUnregistrationEventSerializer extends ServiceEventSerializer {
 

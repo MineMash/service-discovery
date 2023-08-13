@@ -6,7 +6,7 @@ public interface KafkaEventSerializer {
 
     int getSerializerId();
 
-    byte[] serialize(KafkaEvent event) throws IOException;
+    byte[] serialize(KafkaEvent kafkaEvent) throws IOException;
 
     KafkaEvent deserialize(byte[] bytes) throws IOException;
 

@@ -5,6 +5,7 @@ import dev.minemesh.servicediscovery.common.event.KafkaEventSerializationManager
 import dev.minemesh.servicediscovery.common.event.metadata.MetadataUpdateEventSerializer;
 import dev.minemesh.servicediscovery.common.event.service.ServiceRegistrationEventSerializer;
 import dev.minemesh.servicediscovery.common.event.service.ServiceUnregistrationEventSerializer;
+import dev.minemesh.servicediscovery.common.event.state.StateUpdateEventSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +19,7 @@ public class KafkaEventConfiguration {
                 .addAllSerializers(
                         new ServiceRegistrationEventSerializer(ServiceModel::new),
                         new ServiceUnregistrationEventSerializer(ServiceModel::new),
+                        new StateUpdateEventSerializer(),
                         new MetadataUpdateEventSerializer()
                 ).createKafkaEventManager();
     }

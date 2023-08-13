@@ -19,7 +19,7 @@ public enum ServiceState implements Serializable {
 
     @Override
     public void serialize(ObjectOutputStream output) throws IOException {
-        output.writeInt(this.ordinal());
+        output.writeUTF(this.name());
     }
 
     @Override
@@ -34,13 +34,12 @@ public enum ServiceState implements Serializable {
     }
 
     public static Optional<ServiceState> deserializeState(ObjectInputStream input) throws IOException {
-        ServiceState[] values = values();
-        int index = input.readInt();
-
-        if (index >= values.length || index < 0)
+        try {
+            ServiceState state = ServiceState.valueOf(input.readUTF());
+            return Optional.of(state);
+        } catch (IllegalArgumentException e) {
             return Optional.empty();
-
-        return Optional.of(values[index]);
+        }
     }
 
 }
