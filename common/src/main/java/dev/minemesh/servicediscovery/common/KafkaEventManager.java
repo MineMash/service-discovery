@@ -4,10 +4,14 @@ import dev.minemesh.servicediscovery.common.event.KafkaEvent;
 import dev.minemesh.servicediscovery.common.event.KafkaEventSerializer;
 
 import java.io.*;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static dev.minemesh.servicediscovery.common.util.Precheck.checkNotNull;
+
 public final class KafkaEventManager {
+
+    private static final Random RANDOM = ThreadLocalRandom.current();
 
     private final List<KafkaEventSerializer> serializers;
     private final SerializerSelectionStrategy strategy;
@@ -70,7 +74,7 @@ public final class KafkaEventManager {
             case FIRST -> matchingSerializers.get(0);
             case LAST -> matchingSerializers.get(matchingSerializers.size() - 1);
             case RANDOM -> matchingSerializers.get(
-                            ThreadLocalRandom.current().nextInt(matchingSerializers.size()));
+                            RANDOM.nextInt(matchingSerializers.size()));
             case THROW_EXCEPTION -> throw new IOException("To many matching serializers found.");
             default -> throw new AssertionError("Strategy %s is not implemented yet.".formatted(this.strategy));
         };
@@ -85,4 +89,51 @@ public final class KafkaEventManager {
 
     }
 
+    public static class Builder {
+        private LinkedList<KafkaEventSerializer> serializers = new LinkedList<>();
+        private SerializerSelectionStrategy strategy = SerializerSelectionStrategy.FIRST;
+
+        public Builder setSerializers(List<KafkaEventSerializer> serializers) {
+            this.serializers = serializers == null
+                    ? new LinkedList<>()
+                    : new LinkedList<>(serializers);
+            return this;
+        }
+
+        public Builder addSerializer(KafkaEventSerializer serializer) {
+            this.serializers.add(checkNotNull("serializer", serializer));
+            return this;
+        }
+
+        public Builder addFirstSerializer(KafkaEventSerializer serializer) {
+            this.serializers.addFirst(checkNotNull("serializer", serializer));
+            return this;
+        }
+
+        public Builder addLastSerializer(KafkaEventSerializer serializer) {
+            this.serializers.addLast(checkNotNull("serializer", serializer));
+            return this;
+        }
+
+        public Builder addAllSerializers(Collection<KafkaEventSerializer> serializers) {
+            this.serializers.addAll(checkNotNull("serializers", serializers));
+            return this;
+        }
+
+        public Builder addAllSerializers(KafkaEventSerializer... serializers) {
+            this.serializers.addAll(Arrays.asList(checkNotNull("serializers", serializers)));
+            return this;
+        }
+
+        public Builder setStrategy(SerializerSelectionStrategy strategy) {
+            this.strategy = strategy == null
+                    ? SerializerSelectionStrategy.FIRST
+                    : strategy;
+            return this;
+        }
+
+        public KafkaEventManager createKafkaEventManager() {
+            return new KafkaEventManager(this.serializers, this.strategy);
+        }
+    }
 }
