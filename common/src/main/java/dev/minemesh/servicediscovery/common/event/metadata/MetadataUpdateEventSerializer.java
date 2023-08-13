@@ -28,7 +28,6 @@ public class MetadataUpdateEventSerializer implements KafkaEventSerializer {
 
             objectOut.writeUTF(event.getId());
             objectOut.writeUTF(event.getKey());
-            objectOut.writeUTF(event.getOldValue());
             objectOut.writeUTF(event.getNewValue());
 
             return bytesOut.toByteArray();
@@ -42,10 +41,9 @@ public class MetadataUpdateEventSerializer implements KafkaEventSerializer {
 
             String id = objectOut.readUTF();
             String key = objectOut.readUTF();
-            String oldValue = objectOut.readUTF();
             String newValue = objectOut.readUTF();
 
-            return new MetadataUpdateEvent(id, key, oldValue, newValue);
+            return new MetadataUpdateEvent(id, key, newValue);
         }
     }
 }

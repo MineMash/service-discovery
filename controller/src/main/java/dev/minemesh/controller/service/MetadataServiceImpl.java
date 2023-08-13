@@ -5,6 +5,8 @@ import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.model.metadata.MetadataEntry;
 import dev.minemesh.controller.model.metadata.MetadataIdentifier;
 import dev.minemesh.controller.repository.MetadataRepository;
+import dev.minemesh.servicediscovery.common.event.KafkaEvent;
+import dev.minemesh.servicediscovery.common.event.metadata.MetadataUpdateEvent;
 import dev.minemesh.servicediscovery.common.model.RegisteredService;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -18,9 +20,9 @@ import java.util.Optional;
 public class MetadataServiceImpl implements MetadataService {
 
     private final MetadataRepository metadataRepository;
-    private final Producer<String, RegisteredService> producer;
+    private final Producer<String, KafkaEvent> producer;
 
-    public MetadataServiceImpl(MetadataRepository metadataRepository, ProducerFactory<String, RegisteredService> producerFactory) {
+    public MetadataServiceImpl(MetadataRepository metadataRepository, ProducerFactory<String, KafkaEvent> producerFactory) {
         this.metadataRepository = metadataRepository;
         this.producer = producerFactory.createProducer();
     }
@@ -47,8 +49,11 @@ public class MetadataServiceImpl implements MetadataService {
         if (!exists) return false;
 
         this.metadataRepository.save(id, entry);
-        // TODO records rework
-        this.producer.send(new ProducerRecord<>(KafkaConfiguration.METADATA_UPDATE_TOPIC, new ServiceModel()));
+        this.producer.send(
+                new ProducerRecord<>(
+                        KafkaConfiguration.METADATA_UPDATE_TOPIC,
+                        new MetadataUpdateEvent(id, entry.getKey(), entry.getValue()))
+        );
 
         return true;
     }

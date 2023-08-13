@@ -6,14 +6,11 @@ public class MetadataUpdateEvent implements KafkaEvent {
 
     private final String id;
     private final String key;
+        private final String newValue;
 
-    private final String oldValue;
-    private final String newValue;
-
-    public MetadataUpdateEvent(String id, String key, String oldValue, String newValue) {
+    public MetadataUpdateEvent(String id, String key, String newValue) {
         this.id = id;
         this.key = key;
-        this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
@@ -23,10 +20,6 @@ public class MetadataUpdateEvent implements KafkaEvent {
 
     public String getKey() {
         return this.key;
-    }
-
-    public String getOldValue() {
-        return this.oldValue;
     }
 
     public String getNewValue() {

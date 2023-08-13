@@ -48,7 +48,7 @@ public class KafkaProducerConfiguration implements ApplicationContextAware {
     }
 
     @Bean
-    public KafkaTemplate<String, RegisteredService> kafkaTemplate(ProducerFactory<String, RegisteredService> factory) {
+    public KafkaTemplate<String, KafkaEvent> kafkaTemplate(ProducerFactory<String, KafkaEvent> factory) {
         return new KafkaTemplate<>(factory);
     }
 
