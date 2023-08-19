@@ -72,7 +72,12 @@ public final class KafkaEventSerializationManager {
             case LAST -> matchingSerializers.get(matchingSerializers.size() - 1);
             case RANDOM -> matchingSerializers.get(
                             RANDOM.nextInt(matchingSerializers.size()));
-            case THROW_EXCEPTION -> throw new IOException("To many matching serializers found.");
+            case THROW_EXCEPTION -> {
+                if (matchingSerializers.size() > 1)
+                    throw new IOException("To many matching serializers found.");
+                else
+                    yield matchingSerializers.get(0);
+            }
             default -> throw new AssertionError("Strategy %s is not implemented yet.".formatted(this.strategy));
         };
     }
