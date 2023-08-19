@@ -68,7 +68,7 @@ public class ServiceServiceImpl implements ServiceService {
                 .map(serviceModel -> {
                     ServiceState old = serviceModel.getState();
                     serviceModel.setState(state);
-                    ServiceModel saved = this.serviceRepository.save(serviceModel);
+                    this.serviceRepository.save(serviceModel);
 
                     this.kafkaProducer.send(new ProducerRecord<>(
                             KafkaConfiguration.STATE_UPDATE_TOPIC,
