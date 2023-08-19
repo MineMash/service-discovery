@@ -1,7 +1,5 @@
 package dev.minemesh.servicediscovery.common.model;
 
-import dev.minemesh.servicediscovery.common.model.Serializable;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 

@@ -13,7 +13,7 @@ type Mutation {
     unregisterService(id: ID!): Boolean!
 
     # returns weather the state was updated or there is not entry with the given id
-    updateServiceState(id: ID!, state: ServiceState): Boolean!
+    updateServiceState(id: ID!, state: ServiceState): ServiceState
 
     # returns weather the metadata was updated or there is not entry with the given id
     updateServiceMetadata(id: ID!, entry: MetadataEntryInput!): Boolean!

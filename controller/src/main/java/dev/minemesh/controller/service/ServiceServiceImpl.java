@@ -5,6 +5,10 @@ import dev.minemesh.controller.model.HeadlessServiceModel;
 import dev.minemesh.controller.model.ServiceModel;
 import dev.minemesh.controller.repository.MetadataRepository;
 import dev.minemesh.controller.repository.ServiceRepository;
+import dev.minemesh.servicediscovery.common.event.KafkaEvent;
+import dev.minemesh.servicediscovery.common.event.service.ServiceRegistrationEvent;
+import dev.minemesh.servicediscovery.common.event.service.ServiceUnregistrationEvent;
+import dev.minemesh.servicediscovery.common.event.state.StateUpdateEvent;
 import dev.minemesh.servicediscovery.common.model.RegisteredService;
 import dev.minemesh.servicediscovery.common.model.ServiceState;
 import org.apache.kafka.clients.producer.Producer;
@@ -20,9 +24,9 @@ public class ServiceServiceImpl implements ServiceService {
 
     private final ServiceRepository serviceRepository;
     private final MetadataRepository metadataRepository;
-    private final Producer<String, RegisteredService> kafkaProducer;
+    private final Producer<String, KafkaEvent> kafkaProducer;
 
-    public ServiceServiceImpl(ServiceRepository serviceRepository, MetadataRepository metadataRepository, ProducerFactory<String, RegisteredService> producerFactory) {
+    public ServiceServiceImpl(ServiceRepository serviceRepository, MetadataRepository metadataRepository, ProducerFactory<String, KafkaEvent> producerFactory) {
         this.serviceRepository = serviceRepository;
         this.metadataRepository = metadataRepository;
         this.kafkaProducer = producerFactory.createProducer();
@@ -33,18 +37,16 @@ public class ServiceServiceImpl implements ServiceService {
         RegisteredService registeredService = this.serviceRepository.save(headless.toServiceModel());
         this.metadataRepository.saveAll(registeredService.getId(), headless.getMetadata());
 
-        this.kafkaProducer.send(new ProducerRecord<>(KafkaConfiguration.REGISTRATION_TOPIC, registeredService));
+        this.kafkaProducer.send(new ProducerRecord<>(
+                KafkaConfiguration.REGISTRATION_TOPIC,
+                new ServiceRegistrationEvent(registeredService)
+        ));
 
         return registeredService;
     }
 
     @Override
     public boolean unregisterService(String id) {
-        boolean changed = this.serviceRepository.deleteById(id);
-
-        if (changed)
-            this.metadataRepository.deleteAll(id);
-
         Optional<ServiceModel> service = this.findById(id);
 
         if (service.isEmpty()) return false;
@@ -52,22 +54,28 @@ public class ServiceServiceImpl implements ServiceService {
         this.serviceRepository.deleteById(id);
         this.metadataRepository.deleteAll(id);
 
-        this.kafkaProducer.send(new ProducerRecord<>(KafkaConfiguration.UNREGISTRATION_TOPIC, service.get()));
+        this.kafkaProducer.send(new ProducerRecord<>(
+                KafkaConfiguration.UNREGISTRATION_TOPIC,
+                new ServiceUnregistrationEvent(service.get())
+        ));
 
         return true;
     }
 
     @Override
-    public boolean updateServiceState(String id, ServiceState state) {
+    public Optional<ServiceState> updateServiceState(String id, ServiceState state) {
         return this.serviceRepository.findById(id)
                 .map(serviceModel -> {
+                    ServiceState old = serviceModel.getState();
                     serviceModel.setState(state);
-                    ServiceModel saved = this.serviceRepository.save(serviceModel);
+                    this.serviceRepository.save(serviceModel);
 
-                    this.kafkaProducer.send(new ProducerRecord<>(KafkaConfiguration.STATE_UPDATE_TOPIC, saved));
-                    return saved;
-                })
-                .isPresent();
+                    this.kafkaProducer.send(new ProducerRecord<>(
+                            KafkaConfiguration.STATE_UPDATE_TOPIC,
+                            new StateUpdateEvent(id, old, state)
+                    ));
+                    return old;
+                });
     }
 
     @Override
