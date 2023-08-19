@@ -47,11 +47,6 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public boolean unregisterService(String id) {
-        boolean changed = this.serviceRepository.deleteById(id);
-
-        if (changed)
-            this.metadataRepository.deleteAll(id);
-
         Optional<ServiceModel> service = this.findById(id);
 
         if (service.isEmpty()) return false;
