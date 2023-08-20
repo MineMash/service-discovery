@@ -12,6 +12,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-graphql")
     implementation("org.springframework.kafka:spring-kafka")
 
+    // #3: Dockerize - speeds up application startup
+    // https://docs.spring.io/spring-framework/reference/core/beans/classpath-scanning.html#beans-scanning-index
+    annotationProcessor("org.springframework:spring-context-indexer")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("io.projectreactor:reactor-test")
