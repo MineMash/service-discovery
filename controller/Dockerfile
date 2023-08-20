@@ -9,12 +9,20 @@ COPY ../build.gradle.kts build.gradle.kts
 COPY ../gradlew gradlew
 COPY ../settings.gradle.kts settings.gradle.kts
 
-RUN ./graldew controller:bootJar -x test
+RUN ./graldew clean controller:bootJar -x test
+
+# Extract layers for faster application startup
+ARG BUILD_FOLDER=controller/build
+RUN mkdir -p $BUILD_FOLDER/dependency && (cd $BUILD_FOLDER/dependency; jar -xf ../*.jar)
 
 FROM eclipse-termurin:17-jre-alpine
 
 WORKDIR /home/app/controller
 
-COPY --from=builder /home/build/controller/build/libs/*.jar ./app.jar
+# Copy extracted layers
+ARG DEPENDENCY=/home/build/controller/build/dependency
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
 ENTRYPOINT ["exec", "java", "-jar", "app.jar"]
