@@ -18,11 +18,16 @@ RUN mkdir -p $BUILD_FOLDER/dependency && (cd $BUILD_FOLDER/dependency; jar -xf .
 FROM eclipse-termurin:17-jre-alpine
 
 WORKDIR /home/app/controller
+RUN addgroup -S runner && adduser -S runner -G runner
 
 # Copy extracted layers
 ARG DEPENDENCY=/home/build/controller/build/dependency
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib ./lib
+COPY --from=build ${DEPENDENCY}/META-INF ./META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes .
 
-ENTRYPOINT ["exec", "java", "-jar", "app.jar"]
+# run as a non-root user
+USER runner
+
+ARG MAIN_CLASS="dev.minemesh.controller.ControllerApplication"
+ENTRYPOINT ["java", "-cp", "app:lib/*", "$MAIN_CLASS"]
