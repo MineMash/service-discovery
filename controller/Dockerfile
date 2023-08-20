@@ -2,7 +2,12 @@ FROM eclipse-temurin:17-jdk-alpine as builder
 
 WORKDIR /home/build
 
-ADD ../* .
+COPY ../common common
+COPY ../controller controller
+COPY ../gradle gradle
+COPY ../build.gradle.kts build.gradle.kts
+COPY ../gradlew gradlew
+COPY ../settings.gradle.kts settings.gradle.kts
 
 RUN ./graldew controller:bootJar -x test
 
