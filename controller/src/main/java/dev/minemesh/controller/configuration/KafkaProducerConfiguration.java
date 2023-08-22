@@ -2,15 +2,12 @@ package dev.minemesh.controller.configuration;
 
 import dev.minemesh.controller.serliazier.KafkaEventSerializer;
 import dev.minemesh.servicediscovery.common.event.KafkaEvent;
-import dev.minemesh.servicediscovery.common.event.KafkaEventSerializationManager;
-import dev.minemesh.servicediscovery.common.model.RegisteredService;
+import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.kafka.KafkaConnectionDetails;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -21,13 +18,8 @@ import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.Map;
 
-import static org.apache.kafka.clients.producer.ProducerConfig.*;
-
 @Configuration
 public class KafkaProducerConfiguration implements ApplicationContextAware {
-
-    @Value(value = "${spring.kafka.bootstrap-servers}")
-    private String bootstrapAddress;
 
     private ApplicationContext context;
 
@@ -36,15 +28,28 @@ public class KafkaProducerConfiguration implements ApplicationContextAware {
         this.context = applicationContext;
     }
 
+    /**
+     * Creates a {@linkplain ProducerFactory} for {@link String key}:{@link KafkaEvent event}.
+     *
+     * @param kafkaProperties the {@linkplain KafkaProperties}. Provided by {@linkplain org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration}.
+     * @param connectionDetails the {@linkplain KafkaConnectionDetails}. Provided by {@linkplain org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration}.
+     * @return the configured {@link ProducerFactory factory}.
+     * @see org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration#kafkaProducerFactory(KafkaConnectionDetails, ObjectProvider) for more details.
+     */
     @Bean
-    public ProducerFactory<String, KafkaEvent> producerFactory() {
-        Map<String, Object> configProps = Map.of(BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+    public ProducerFactory<String, KafkaEvent> producerFactory(KafkaProperties kafkaProperties, KafkaConnectionDetails connectionDetails) {
+        Map<String, Object> properties = kafkaProperties.buildProducerProperties();
+        properties.putIfAbsent(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, connectionDetails.getProducerBootstrapServers());
+        properties.putIfAbsent(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT");
 
-        return new DefaultKafkaProducerFactory<>(
-                configProps,
-                StringSerializer::new,
-                () -> new KafkaEventSerializer(this.context.getBean(KafkaEventSerializationManager.class))
-        );
+        DefaultKafkaProducerFactory<String, KafkaEvent> factory = new DefaultKafkaProducerFactory<>(properties);
+        factory.setKeySerializerSupplier(StringSerializer::new);
+        factory.setValueSerializerSupplier(() -> context.getBean(KafkaEventSerializer.class));
+
+        String transactionIdPrefix = kafkaProperties.getProducer().getTransactionIdPrefix();
+        if (transactionIdPrefix != null) factory.setTransactionIdPrefix(transactionIdPrefix);
+
+        return factory;
     }
 
     @Bean

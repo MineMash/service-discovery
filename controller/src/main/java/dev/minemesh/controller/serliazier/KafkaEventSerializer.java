@@ -3,9 +3,11 @@ package dev.minemesh.controller.serliazier;
 import dev.minemesh.servicediscovery.common.event.KafkaEventSerializationManager;
 import dev.minemesh.servicediscovery.common.event.KafkaEvent;
 import org.apache.kafka.common.serialization.Serializer;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Component
 public class KafkaEventSerializer implements Serializer<KafkaEvent> {
 
     private final KafkaEventSerializationManager manager;
