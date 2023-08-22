@@ -22,7 +22,7 @@ RUN addgroup --system runner && adduser --system runner --ingroup runner
 ARG DEPENDENCY=/home/build/controller/build/dependency
 COPY --from=builder ${DEPENDENCY}/BOOT-INF/lib ./lib
 COPY --from=builder ${DEPENDENCY}/META-INF ./META-INF
-COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes .
+COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes ./app
 
 # run as a non-root user
 USER runner
