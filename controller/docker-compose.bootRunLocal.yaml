@@ -1,6 +1,17 @@
 version: v2
 
 services:
+  service-discovery.controller:
+    depends_on:
+      - service-discovery.controller.kafka
+      - service-discovery.controller.redis-stack
+    build:
+      dockerfile: ./controller/Dockerfile
+      context: ../
+    environment:
+      - spring_profiles_active=local
+    ports:
+      - 8080:8080
   service-discovery.controller.kafka:
     image: bitnami/kafka:latest
     environment:
@@ -17,5 +28,5 @@ services:
     image: redis/redis-stack:6.2.6-v9
     restart: always
     ports:
-      - 6379:6379
+#      - 6379:6379
       - 8001:8001

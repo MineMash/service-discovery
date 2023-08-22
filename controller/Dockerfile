@@ -1,21 +1,19 @@
-FROM eclipse-temurin:17-jdk-alpine as builder
+FROM gradle:8.3.0-jdk17 as builder
 
 WORKDIR /home/build
 
-COPY common common
+COPY build.gradle.kts settings.gradle.kts ./
 COPY controller controller
-COPY gradle gradle
-COPY build.gradle.kts build.gradle.kts
-COPY gradlew gradlew
-COPY settings.gradle.kts settings.gradle.kts
+COPY common common
+# COPY gradle/versions.toml .
 
-RUN ./gradlew clean controller:bootJar -x test
+RUN gradle clean controller:bootJar -x test
 
 # Extract layers for faster application startup
 ARG BUILD_FOLDER=controller/build
-RUN mkdir -p $BUILD_FOLDER/dependency && (cd $BUILD_FOLDER/dependency; jar -xf ../*.jar)
+RUN mkdir -p $BUILD_FOLDER/dependency && (cd $BUILD_FOLDER/dependency; ls ../libs; jar -xf ../libs/*.jar)
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 WORKDIR /home/app/controller
 RUN addgroup --system runner && adduser --system runner --ingroup runner
@@ -30,4 +28,5 @@ COPY --from=builder ${DEPENDENCY}/BOOT-INF/classes .
 USER runner
 
 ARG MAIN_CLASS="dev.minemesh.controller.ControllerApplication"
-ENTRYPOINT ["java", "-cp", "app:lib/*", "$MAIN_CLASS"]
+ENV MAIN_CLASS_ENV=$MAIN_CLASS
+ENTRYPOINT exec java -cp app:lib/* $MAIN_CLASS_ENV
