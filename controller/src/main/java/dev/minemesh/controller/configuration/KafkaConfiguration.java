@@ -20,30 +20,6 @@ public class KafkaConfiguration {
     public static final String STATE_UPDATE_TOPIC = "service-discovery.service.state-update";
 
     @Bean
-    public KafkaAdmin kafkaAdmin(KafkaProperties kafkaProperties, KafkaConnectionDetails connectionDetails) {
-        Map<String, Object> properties = kafkaProperties.buildAdminProperties();
-        properties.putIfAbsent(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, connectionDetails.getAdminBootstrapServers());
-        properties.putIfAbsent(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "PLAINTEXT");
-
-        KafkaAdmin kafkaAdmin = new KafkaAdmin(properties);
-
-        KafkaProperties.Admin admin = kafkaProperties.getAdmin();
-        if (admin.getCloseTimeout() != null) {
-            kafkaAdmin.setCloseTimeout((int) admin.getCloseTimeout().getSeconds());
-        }
-        if (admin.getOperationTimeout() != null) {
-            kafkaAdmin.setOperationTimeout((int) admin.getOperationTimeout().getSeconds());
-        }
-
-        properties.forEach((k, v) -> System.out.println("%s = %s".formatted(k, v)));
-
-        kafkaAdmin.setFatalIfBrokerNotAvailable(admin.isFailFast());
-        kafkaAdmin.setModifyTopicConfigs(admin.isModifyTopicConfigs());
-        kafkaAdmin.setAutoCreate(admin.isAutoCreate());
-        return kafkaAdmin;
-    }
-
-    @Bean
     public NewTopic registrationTopic() {
         return new NewTopic(REGISTRATION_TOPIC, 1, (short) 1);
     }

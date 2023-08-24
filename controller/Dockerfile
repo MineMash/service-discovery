@@ -29,4 +29,4 @@ USER runner
 
 ARG MAIN_CLASS="dev.minemesh.controller.ControllerApplication"
 ENV MAIN_CLASS_ENV=$MAIN_CLASS
-ENTRYPOINT sleep 30 && exec java -cp app:lib/* $MAIN_CLASS_ENV
+ENTRYPOINT exec java -cp app:lib/* $MAIN_CLASS_ENV

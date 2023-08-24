@@ -1,0 +1,11 @@
+auth:
+  type: DISABLED
+kafka:
+  clusters:
+  - bootstrapServers: service-discovery.controller.kafka:9094
+    name: Test-Cluster
+    properties: {}
+    readOnly: false
+rbac:
+  roles: []
+webclient: {}
