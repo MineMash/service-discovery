@@ -54,7 +54,7 @@ task("bootRunLocal") {
             this.executable = "docker"
             this.args(
                 "compose",
-                "-f", "docker-compose.bootRunLocal.yaml",
+                "-f", "docker-compose.yaml",
                 "up", "-d"
             )
         }
@@ -80,7 +80,7 @@ task("cleanupContainers") {
             this.executable = "docker"
             this.args(
                 "compose",
-                "-f", "docker-compose.bootRunLocal.yaml",
+                "-f", "docker-compose.yaml",
                 "down"
             )
         }
