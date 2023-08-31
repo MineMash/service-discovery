@@ -13,7 +13,12 @@ spring:
     redis:
       key-prefix: service-discovery
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9094}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
+    admin:
+      properties:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP}
+    producer:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP}
 server:
   port: 8080
   address: 0.0.0.0

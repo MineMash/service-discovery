@@ -1,0 +1,58 @@
+version: v2
+
+#
+# Links for local test deployment:
+# - GraphiQL: http://localhost:8080/graphiql
+# - Kafka-UI: http://localhost:8000
+# - Redis-Insight: http://localhost:8001
+#
+
+services:
+  controller:
+    container_name: sd.app.controller
+    depends_on:
+      - kafka
+      - redis-stack
+    build:
+      dockerfile: ./controller/Dockerfile
+      context: ../
+    environment:
+      - spring_profiles_active=local
+      - KAFKA_BOOTSTRAP=kafka:9094
+      # For debugging with remote JVM debugger
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - 8080:8080
+      # For debugging with remote JVM debugger
+      - 5005:5005
+  kafka:
+    container_name: sd.dep.kafka
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@127.0.0.1:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    ports:
+      - 9094:9094
+  # You cannot access the kafka container with the IntelliJ Kafka plugin 'cause of the external advertised listener
+  kafka-ui:
+    container_name: sd.dx.kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    ports:
+      - 8000:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    volumes:
+      - ./kafka-ui-config.yml:/etc/kafkaui/dynamic_config.yaml
+  redis-stack:
+    container_name: sd.dep.redis
+    image: redis/redis-stack:6.2.6-v9
+    restart: always
+    ports:
+      - 8001:8001
