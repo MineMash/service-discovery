@@ -1,0 +1,24 @@
+name: Add issue to project
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  setup_project:
+    name: 'Setup project'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Add to project'
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: ${{ vars.PROJECT_BACKLOG }}
+          github-token: ${{ secrets.SETUP_IN_PROJECT_TOKEN }}
+      - name: 'Set status'
+        uses: EndBug/project-fields@v1
+        with:
+          fields: 'Status'
+          project_url: ${{ vars.PROJECT_BACKLOG }}
+          github-token: ${{ secrets.SETUP_IN_PROJECT_TOKEN }}
+          values: '🆕 New'
